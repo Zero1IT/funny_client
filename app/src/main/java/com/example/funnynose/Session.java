@@ -14,6 +14,8 @@ import java.net.URLConnection;
 
 public class Session {
 
+    public static final String TAG = "DEBUG";
+
     public static final String APP_PREFERENCES = "app_settings";
     public static final String APP_PREFERENCES_LOGIN = "login";
     public static final String APP_PREFERENCES_PHONE = "phone";
