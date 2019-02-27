@@ -32,25 +32,9 @@ import java.net.URISyntaxException;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Socket mSocket;
-    {
-        try {
-            //TODO: пока хз для чего могут юзаться, нашёл на github люди юзали))) но нет разницы
-            //IO.Options opts = new IO.Options();
-            //opts.reconnection = true;
-            mSocket = IO.socket("http://app.funnynose.by");
-        } catch (URISyntaxException e) {
-            Log.d(Session.TAG, "URI exc");
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO: delete
-        mSocket.connect();
-        mSocket.on("message", exampleTest);
-        Log.d(Session.TAG, mSocket.connected() + "");
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -96,13 +80,6 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), mess, Toast.LENGTH_LONG).show();
             }
         });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        //TODO: delete
-        mSocket.disconnect();
     }
 
     @Override

@@ -23,8 +23,8 @@ public class Session {
     public static final String APP_PREFERENCES_STATUS = "status";
 
     private static Session mSession;
-    private static boolean mSessionActive;
-    private static boolean mOnline;
+    //private static boolean mSessionActive;
+    //private static boolean mOnline;
 
     public static Context context;
 
@@ -32,7 +32,7 @@ public class Session {
 
     public static Session currentSession() {
         if (mSession == null) {
-            throw new NullPointerException("Session does't init");
+            throw new NullPointerException("Session doesn't init");
         }
         return mSession;
     }
@@ -42,9 +42,9 @@ public class Session {
             return;
         }
         mSession = new Session();
-        mSessionActive = true;
-        mOnline = isOnline();
-        checkOnline();
+        //mSessionActive = true;
+        //mOnline = isOnline();
+        //checkOnline();
     }
 
     public static void closeSession() {
@@ -52,28 +52,28 @@ public class Session {
             return;
         }
         mSession = null;
-        mSessionActive = false;
+        //mSessionActive = false;
     }
 
     //public static UserProfile currentUser() {
     //    return mUser;
     //}
 
-    public static boolean isActive() {
-        return mSessionActive;
-    }
+    //public static boolean isActive() {
+    //    return mSessionActive;
+    //}
 
-    public static boolean currentOnline() { return mOnline; }
+    //public static boolean currentOnline() { return mOnline; }
 
-    private static void checkOnline() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mOnline = isOnline();
-                checkOnline();
-            }
-        }, 100);
-    }
+    //private static void checkOnline() {
+    //    new Handler().postDelayed(new Runnable() {
+    //        @Override
+    //        public void run() {
+    //            mOnline = isOnline();
+    //            checkOnline();
+    //        }
+    //    }, 100);
+    //}
 
     public static boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -81,7 +81,7 @@ public class Session {
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {
             try {
                 URLConnection connection = new URL("http://yandex.ru").openConnection();
-                connection.setConnectTimeout(3000);
+                connection.setConnectTimeout(1000);
                 connection.connect();
                 return true;
             } catch (NetworkOnMainThreadException e) {
