@@ -25,13 +25,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".authentification.AuthentificationActivity"
+        <activity android:name=".authentification.AuthenticationActivity"
             android:label="Вход"
             android:screenOrientation="userPortrait">
 
         </activity>
 
-        <activity android:name=".authentification.FirstRegistrationActivity"
+        <activity android:name=".authentification.RegistrationActivity"
             android:label="Регистрация"
             android:screenOrientation="userPortrait">
 
@@ -42,10 +42,6 @@
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="userPortrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
     </application>
 

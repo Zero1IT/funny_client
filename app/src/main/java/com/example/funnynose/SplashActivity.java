@@ -2,10 +2,9 @@ package com.example.funnynose;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 
-import com.example.funnynose.authentification.AuthentificationActivity;
+import com.example.funnynose.authentification.AuthenticationActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,18 +14,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.socket.emitter.Emitter;
 
 public class SplashActivity extends AppCompatActivity {
-
-    private int counter = 0;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Session.context = getApplicationContext();
-
-        if (Session.isOnline()) {
-            SocketAPI.initSocket();
-
+        Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+        startActivity(intent);
+        /*if (Session.isOnline()) {
             JSONObject obj = new JSONObject();
             try {
                 obj.put("phone", "ada11ad");
@@ -34,26 +27,28 @@ public class SplashActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 Log.d("DEBUG", "" + e.getMessage());
             }
-            SocketAPI.currentSocket().emit("authentication", obj)
-                    .once("authentication", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    if ((boolean) args[0]) {
-                        Intent intent = new Intent(Session.context, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Intent intent = new Intent(Session.context, AuthentificationActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-            });
+            SocketAPI.getSocket().emit("authentication", obj)
+                    .once("authentication", auth);
         } else {
             // проверка данных пользователя
             Intent intent = new Intent(Session.context, MainActivity.class);
             startActivity(intent);
             finish();
-        }
+        }*/
     }
+
+    /*Emitter.Listener auth = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            if ((boolean) args[0]) {
+                Intent intent = new Intent(Session.context, MainActivity.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Intent intent = new Intent(Session.context, AuthenticationActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    };*/
 }

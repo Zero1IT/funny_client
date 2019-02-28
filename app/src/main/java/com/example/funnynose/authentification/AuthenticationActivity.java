@@ -1,14 +1,9 @@
 package com.example.funnynose.authentification;
 
-import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
+
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -20,53 +15,42 @@ import com.example.funnynose.MainActivity;
 import com.example.funnynose.R;
 import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import io.socket.emitter.Emitter;
 
-public class AuthentificationActivity extends AppCompatActivity {
+public class AuthenticationActivity extends AppCompatActivity {
 
     private AutoCompleteTextView mPhoneView;
     private EditText mPasswordView;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_auth);
-        getSupportActionBar().setTitle("Авторизация");
+
+        ActionBar bar = getSupportActionBar();
+        if (bar != null)
+            bar.setTitle("Авторизация");
 
         mPhoneView = findViewById(R.id.phone);
         mPhoneView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
         mPasswordView = findViewById(R.id.password);
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            TelephonyManager tMgr = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-            String phoneNumber = tMgr.getLine1Number();
-            if (phoneNumber != null) {
-                mPhoneView.setText(phoneNumber);
-            }
-        }
 
         Button mPhoneSignInButton = findViewById(R.id.phone_sign_in_button);
         mPhoneSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String phone = mPhoneView.getText().toString().replace(" ", "").replace("-", "");
-                String password = mPasswordView.getText().toString();
+                String password = mPasswordView.getText().toString().trim();
                 if (password.length() > 0 && !password.contains(" ")) {
-                    password = md5(password);
-                    if (phone.matches("[+]375\\d{9}") && password.length() > 0) {
+                    if (phone.matches("[+]375\\d{9}")) {
                         // запрос на проверку
                         JSONObject obj = new JSONObject();
                         try {
@@ -75,7 +59,7 @@ public class AuthentificationActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             Log.d("DEBUG", "" + e.getMessage());
                         }
-                        SocketAPI.currentSocket().emit("authentication", obj)
+                        SocketAPI.getSocket().emit("authentication", obj)
                                 .once("authentication", new Emitter.Listener() {
                             @Override
                             public void call(Object... args) {
@@ -96,15 +80,16 @@ public class AuthentificationActivity extends AppCompatActivity {
         mOpenReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Session.context, FirstRegistrationActivity.class);
+                Intent intent = new Intent(getApplicationContext(), RegistrationActivity.class);
                 startActivity(intent);
             }
         });
     }
 
 
-
-    public static String md5(final String s) {
+// пока не будет комментариев, о том, что это за метод и что в нём происходит
+// не разкоменчивать, и норамальное название ему не повредит
+/*    public static String md5(final String s) {
         try {
             // Create MD5 Hash
             MessageDigest digest = java.security.MessageDigest
@@ -126,6 +111,6 @@ public class AuthentificationActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return "";
-    }
+    }*/
 
 }
