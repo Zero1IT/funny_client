@@ -11,29 +11,25 @@ public class SocketAPI {
 
     //private final static String URL = "http://app.funnynose.by";
     private final static String URL = "http://192.168.0.105:3000";
+    //private final static String URL = "http://192.168.43.1:3000";
 
     private static Socket mSocket;
 
     private SocketAPI() {}
 
-    public static Socket currentSocket() {
+    public static Socket getSocket() {
         if (mSocket == null) {
-            throw new NullPointerException("Socket doesn't init");
-        }
-        return mSocket;
-    }
-
-    public static void initSocket() {
-        if (mSocket != null) {
-            return;
-        }
-        try{
-            mSocket = IO.socket(URL);
+            try {
+                mSocket = IO.socket(URL);
+                mSocket.connect();
+            } catch (URISyntaxException e) {
+                Log.d(Session.TAG, e.getMessage());
+            }
+        } else if (!mSocket.connected()) {
             mSocket.connect();
-        } catch (URISyntaxException e){
-            Log.d(Session.TAG, e.getMessage());
         }
 
+        return mSocket;
     }
 
     public static void closeSocket() {
@@ -43,8 +39,4 @@ public class SocketAPI {
         mSocket.disconnect();
         mSocket = null;
     }
-
-
-    
-
 }

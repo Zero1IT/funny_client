@@ -69,19 +69,7 @@ public class FirstRegistrationFragment extends Fragment {
         mOpenReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(getContext());
-                alertDialog.setTitle("Прервать регистрацию");
-                alertDialog.setMessage("Вы точно хотите прервать регистрацию?");
-                alertDialog.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int arg1) {
-                        Intent intent = new Intent(Session.context, AuthentificationActivity.class);
-                        startActivity(intent);
-                        getActivity().finish();
-                    }
-                });
-                alertDialog.setNegativeButton("Отмена", null);
-                alertDialog.show();
+                ((RegistrationActivity) getActivity()).exitFromRegistration();
             }
         });
 
@@ -157,7 +145,7 @@ public class FirstRegistrationFragment extends Fragment {
             checkEmail(email);
             if (!phoneExistence || !emailExistence) {
                 ((RegistrationActivity) getActivity()).nextFragment();
-                ((RegistrationActivity) getActivity()).putFirstFragmentData(email, phone, AuthentificationActivity.hashFunction(password));
+                ((RegistrationActivity) getActivity()).putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
             } else {
                 Toast.makeText(Session.context, "Пользователь с такими данными уже существует!", Toast.LENGTH_SHORT).show();
             }
@@ -171,7 +159,7 @@ public class FirstRegistrationFragment extends Fragment {
         } catch (JSONException e) {
             Log.d("DEBUG", "" + e.getMessage());
         }
-        SocketAPI.currentSocket().emit("registration/phone_existence", obj)
+        SocketAPI.getSocket().emit("registration/phone_existence", obj)
                 .once("registration/phone_existence", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
@@ -187,7 +175,7 @@ public class FirstRegistrationFragment extends Fragment {
         } catch (JSONException e) {
             Log.d("DEBUG", "" + e.getMessage());
         }
-        SocketAPI.currentSocket().emit("registration/email_existence", obj)
+        SocketAPI.getSocket().emit("registration/email_existence", obj)
                 .once("registration/email_existence", new Emitter.Listener() {
             @Override
             public void call(Object... args) {

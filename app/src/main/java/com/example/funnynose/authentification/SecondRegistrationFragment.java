@@ -124,7 +124,7 @@ public class SecondRegistrationFragment extends Fragment {
         } catch (JSONException e) {
             Log.d("DEBUG", "" + e.getMessage());
         }
-        SocketAPI.currentSocket().emit("registration/nickname_existence", obj)
+        SocketAPI.getSocket().emit("registration/nickname_existence", obj)
                 .once("registration/nickname_existence", new Emitter.Listener() {
             @Override
             public void call(Object... args) {

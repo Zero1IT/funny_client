@@ -59,29 +59,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private Emitter.Listener exampleTest = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            JSONObject data = (JSONObject) args[0];
-            String mess;
-            try {
-                mess = data.getString("message").toString();
-            } catch (JSONException e) {
-                return;
-            }
-            createToastInUiThread(mess);
-        }
-    };
-
-    private void createToastInUiThread(final String mess) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast.makeText(getApplicationContext(), mess, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

@@ -1,5 +1,6 @@
 package com.example.funnynose.authentification;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,7 +19,10 @@ import java.util.Date;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -35,6 +39,7 @@ public class RegistrationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_registration);
 
         ActionBar actionBar = getSupportActionBar();
@@ -61,7 +66,6 @@ public class RegistrationActivity extends AppCompatActivity {
         } catch (JSONException e) {
             Log.d("DEBUG", "" + e.getMessage());
         }
-
     }
 
     public void nextFragment(){
@@ -75,7 +79,7 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         } else {
             Log.d("DEBUG", "---> Server");
-            SocketAPI.currentSocket().emit("registration", registrationUserData)
+            SocketAPI.getSocket().emit("registration", registrationUserData)
                     .once("registration", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
@@ -103,7 +107,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             }
         } else {
-            Log.d("DEBUG", "RegistrationActivity previousFragment() else");
+            exitFromRegistration();
         }
     }
 
@@ -139,6 +143,26 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    public void exitFromRegistration() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Прервать регистрацию");
+        alertDialog.setMessage("Вы точно хотите прервать регистрацию?");
+        alertDialog.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int arg1) {
+                Intent intent = new Intent(Session.context, AuthenticationActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+        alertDialog.setNegativeButton("Отмена", null);
+        alertDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        previousFragment();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -149,5 +173,4 @@ public class RegistrationActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }
