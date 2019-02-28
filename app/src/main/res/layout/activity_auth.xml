@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
+                <EditText
                     android:id="@+id/phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -73,13 +73,13 @@
                 android:textSize="16sp"
                 android:textStyle="bold"/>
 
-            <Button
+            <TextView
                 android:id="@+id/open_reg_button"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Регистрация"
+                android:layout_marginTop="40dp"
+                android:text="Ещё нет аккаунта? Зарегистрируйтесь!"
                 android:gravity="center"
                 android:textSize="16sp"
                 android:textStyle="bold"/>

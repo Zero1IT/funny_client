@@ -16,8 +16,6 @@ import io.socket.emitter.Emitter;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private int counter = 0;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +24,8 @@ public class SplashActivity extends AppCompatActivity {
 
         if (Session.isOnline()) {
             SocketAPI.initSocket();
+
+            Log.d("DEBUG", "1");
 
             JSONObject obj = new JSONObject();
             try {
@@ -39,10 +39,12 @@ public class SplashActivity extends AppCompatActivity {
                 @Override
                 public void call(Object... args) {
                     if ((boolean) args[0]) {
+                        Log.d("DEBUG", "2");
                         Intent intent = new Intent(Session.context, MainActivity.class);
                         startActivity(intent);
                         finish();
                     } else {
+                        Log.d("DEBUG", "3");
                         Intent intent = new Intent(Session.context, AuthentificationActivity.class);
                         startActivity(intent);
                         finish();

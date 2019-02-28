@@ -31,7 +31,7 @@
 
         </activity>
 
-        <activity android:name=".authentification.FirstRegistrationActivity"
+        <activity android:name=".authentification.RegistrationActivity"
             android:label="Регистрация"
             android:screenOrientation="userPortrait">
 

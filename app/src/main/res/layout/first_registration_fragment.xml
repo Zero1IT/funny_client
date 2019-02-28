@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_gravity="center"
+android:orientation="vertical">
+
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:maxLines="1"
+        android:singleLine="true" />
+
+</com.google.android.material.textfield.TextInputLayout>
+
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Номер телефона"
+        android:inputType="phone"
+        android:maxLines="1"
+        android:singleLine="true" />
+
+</com.google.android.material.textfield.TextInputLayout>
+
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Пароль"
+        android:imeActionId="6"
+        android:imeOptions="actionUnspecified"
+        android:inputType="textPassword"
+        android:maxLines="1"
+        android:singleLine="true" />
+</com.google.android.material.textfield.TextInputLayout>
+
+<com.google.android.material.textfield.TextInputLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/repeat_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Повторите пароль"
+        android:imeActionId="6"
+        android:imeOptions="actionUnspecified"
+        android:inputType="textPassword"
+        android:maxLines="1"
+        android:singleLine="true" />
+</com.google.android.material.textfield.TextInputLayout>
+
+<Button
+    android:id="@+id/continue_button"
+    style="?android:textAppearanceSmall"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="16dp"
+    android:text="Продолжить"
+    android:gravity="center"
+    android:textSize="16sp"
+    android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/open_login_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:text="Уже есть аккаунт? Просто войдите!"
+        android:gravity="center"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+
+</LinearLayout>

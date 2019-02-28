@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.funnynose.MainActivity;
@@ -36,7 +37,7 @@ import io.socket.emitter.Emitter;
 
 public class AuthentificationActivity extends AppCompatActivity {
 
-    private AutoCompleteTextView mPhoneView;
+    private EditText mPhoneView;
     private EditText mPasswordView;
 
     @Override
@@ -65,7 +66,7 @@ public class AuthentificationActivity extends AppCompatActivity {
                 String phone = mPhoneView.getText().toString().replace(" ", "").replace("-", "");
                 String password = mPasswordView.getText().toString();
                 if (password.length() > 0 && !password.contains(" ")) {
-                    password = md5(password);
+                    password = hashFunction(password);
                     if (phone.matches("[+]375\\d{9}") && password.length() > 0) {
                         // запрос на проверку
                         JSONObject obj = new JSONObject();
@@ -80,31 +81,40 @@ public class AuthentificationActivity extends AppCompatActivity {
                             @Override
                             public void call(Object... args) {
                                 if ((boolean) args[0]) {
+                                    Log.d("DEBUG", "xmmmm");
                                     Intent intent = new Intent(Session.context, MainActivity.class);
                                     startActivity(intent);
                                     finish();
+                                } else {
+                                    // TODO: вылетает здесь из-за ассинхронности вызова
+                                    //Toast.makeText(Session.context, "Неправильный номер телефона или пароль", Toast.LENGTH_SHORT).show();
                                 }
                             }
                         });
+                    } else {
+                        Toast.makeText(Session.context, "Неправильный номер телефона или пароль", Toast.LENGTH_SHORT).show();
                     }
+                } else {
+                    Toast.makeText(Session.context, "Неправильный номер телефона или пароль", Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(Session.context, "Неправильный номер телефона или пароль", Toast.LENGTH_SHORT).show();
+
             }
         });
 
-        Button mOpenReg = findViewById(R.id.open_reg_button);
+        TextView mOpenReg = findViewById(R.id.open_reg_button);
         mOpenReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Session.context, FirstRegistrationActivity.class);
+                Intent intent = new Intent(Session.context, RegistrationActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
 
 
 
-    public static String md5(final String s) {
+    public static String hashFunction(final String s) {
         try {
             // Create MD5 Hash
             MessageDigest digest = java.security.MessageDigest
