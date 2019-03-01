@@ -1,44 +1,35 @@
-package com.example.funnynose.authentification;
+package com.example.funnynose.authentication;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+
 import android.os.Bundle;
-import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import io.socket.emitter.Emitter;
 
 public class SecondRegistrationFragment extends Fragment {
 
+    private RegistrationActivity mParent;
     private EditText mNicknameView;
     private EditText mNameView;
     private EditText mSurnameView;
 
     private boolean nicknameExistence;
+    private boolean responseNickname;
 
 
     @Nullable
@@ -50,7 +41,7 @@ public class SecondRegistrationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mParent = (RegistrationActivity) getActivity();
         mNicknameView = view.findViewById(R.id.nickname);
         mNameView = view.findViewById(R.id.name);
         mSurnameView = view.findViewById(R.id.surname);
@@ -107,14 +98,67 @@ public class SecondRegistrationFragment extends Fragment {
         if (cancel) {
             v.requestFocus();
         } else {
-            checkNickname(nickname);
-            if (!nicknameExistence) {
-                ((RegistrationActivity) getActivity()).nextFragment();
-                ((RegistrationActivity) getActivity()).putSecondFragmentData(nickname, name, surname);
-            } else {
-                Toast.makeText(Session.context, "Пользователь с таким псевдонимом уже существует!", Toast.LENGTH_SHORT).show();
-            }
+            mParent.showProgress(true);
+            checkInThread(nickname, name, surname);
         }
+    }
+
+    private void checkInThread(final String nickname, final String name, final String surname){
+        new Thread(new Runnable() {
+            public void run() {
+                responseNickname = false;
+                checkNickname(nickname);
+                int counter = 0;
+                while (!Thread.currentThread().isInterrupted() && counter < 40) {
+                    // проверяем переменную на ответ от сервера
+                    if (responseNickname) {
+                        if (!nicknameExistence) {
+                            mParent.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mParent.nextFragment();
+                                    mParent.putSecondFragmentData(nickname, name, surname);
+                                    mParent.showProgress(false);
+                                }
+                            });
+                            return;
+                        } else {
+                            mParent.showProgress(false);
+                            if (mParent.getCurrentFocus() != null) {
+                                Snackbar.make(mParent.getCurrentFocus(),
+                                        "Пользователь с такими данными уже существует!",
+                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+
+                                    }
+                                }).show();
+                            }
+                            return;
+                        }
+                    }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    counter++;
+                }
+                if (counter == 40) { // 50 * 40 = 2000 ms = 2 секунды
+                    mParent.showProgress(false);
+                    if (mParent.getCurrentFocus() != null) {
+                        Snackbar.make(mParent.getCurrentFocus(),
+                                "Ошибка соединения!",
+                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                            }
+                        }).show();
+                    }
+                }
+            }
+        }).start();
     }
 
     private void checkNickname(final String nickname) {
@@ -128,6 +172,7 @@ public class SecondRegistrationFragment extends Fragment {
                 .once("registration/nickname_existence", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                responseNickname = true;
                 nicknameExistence = (boolean) args[0];
             }
         });

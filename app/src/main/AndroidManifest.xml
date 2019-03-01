@@ -25,13 +25,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".authentification.AuthenticationActivity"
+        <activity android:name=".authentication.AuthenticationActivity"
             android:label="Вход"
             android:screenOrientation="userPortrait">
 
         </activity>
 
-        <activity android:name=".authentification.RegistrationActivity"
+        <activity android:name=".authentication.RegistrationActivity"
             android:label="Регистрация"
             android:screenOrientation="userPortrait">
 

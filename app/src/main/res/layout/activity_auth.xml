@@ -8,8 +8,8 @@
     android:paddingRight="16dp">
 
     <ProgressBar
-        android:id="@+id/login_progress"
-        style="?android:attr/progressBarStyleLarge"
+        android:id="@+id/progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -37,7 +37,7 @@
                     android:id="@+id/phone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Номер телефона"
+                    android:hint="@string/phone"
                     android:inputType="phone"
                     android:maxLines="1"
                     android:singleLine="true" />
@@ -52,7 +52,7 @@
                     android:id="@+id/password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Пароль"
+                    android:hint="@string/password"
                     android:imeActionId="6"
                     android:imeActionLabel="Вход"
                     android:imeOptions="actionUnspecified"
@@ -64,11 +64,11 @@
 
             <Button
                 android:id="@+id/phone_sign_in_button"
-                style="?android:actionBarStyle"
+                android:background="@drawable/auth_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Вход"
+                android:text="@string/enter"
                 android:gravity="center"
                 android:textSize="16sp"
                 android:textStyle="bold"/>
@@ -79,7 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
-                android:text="Ещё нет аккаунта? Зарегистрируйтесь!"
+                android:text="@string/reg_by_dima"
                 android:gravity="center"
                 android:textSize="16sp"
                 android:textStyle="bold"/>

@@ -1,9 +1,7 @@
-package com.example.funnynose.authentification;
+package com.example.funnynose.authentication;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
@@ -15,19 +13,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
-import com.example.funnynose.SplashActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import io.socket.emitter.Emitter;
@@ -37,9 +32,12 @@ public class FirstRegistrationFragment extends Fragment {
     private EditText mPhoneView;
     private EditText mPasswordView;
     private EditText mRepeatPasswordView;
+    private RegistrationActivity mParent;
 
     private boolean phoneExistence;
     private boolean emailExistence;
+    private boolean responsePhone;
+    private boolean responseEmail;
 
     @Nullable
     @Override
@@ -50,7 +48,7 @@ public class FirstRegistrationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mParent = (RegistrationActivity) getActivity();
         mEmailView = view.findViewById(R.id.email);
         mPhoneView = view.findViewById(R.id.phone);
         mPhoneView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
@@ -69,13 +67,19 @@ public class FirstRegistrationFragment extends Fragment {
         mOpenReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((RegistrationActivity) getActivity()).exitFromRegistration();
+                mParent.exitFromRegistration();
             }
         });
 
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            TelephonyManager tMgr = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-            String phoneNumber = tMgr.getLine1Number();
+        Context context = getContext();
+
+        if (context == null) {
+            throw new NullPointerException("Context is null");
+        }
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            TelephonyManager tMgr = (TelephonyManager) mParent.getSystemService(Context.TELEPHONY_SERVICE);
+            String phoneNumber = tMgr.getLine1Number(); //TODO: узнать почему - исправить // написано не рекомендуется - исправлять не требуется
             if (phoneNumber != null) {
                 mPhoneView.setText(phoneNumber);
             }
@@ -87,8 +91,8 @@ public class FirstRegistrationFragment extends Fragment {
         boolean cancel = false;
         View v = new View(getContext());
 
-        phoneExistence = true;
         emailExistence = true;
+        phoneExistence = true;
 
         String password, rPassword, phone, email;
 
@@ -125,7 +129,7 @@ public class FirstRegistrationFragment extends Fragment {
             v = mPhoneView;
         }
 
-        if (!email.contains("@")) {
+        if (!email.contains("@") || !email.contains(".")) {
             cancel = true;
             mEmailView.setError("Неправильный Email");
             v = mEmailView;
@@ -144,32 +148,84 @@ public class FirstRegistrationFragment extends Fragment {
         if (cancel) {
             v.requestFocus();
         } else {
-
-            checkPhoneOnUiThread(phone);
-            checkEmailOnUiThread(email);
-            if (!phoneExistence && !emailExistence) {
-                ((RegistrationActivity) getActivity()).nextFragment();
-                ((RegistrationActivity) getActivity()).putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
-            } else {
-                Toast.makeText(Session.context, "Пользователь с такими данными уже существует!", Toast.LENGTH_SHORT).show();
-            }
+            mParent.showProgress(true);
+            checkInThread(email, phone, password);
         }
     }
 
-    private void checkPhoneOnUiThread(final String phone) {
-        new Thread() {
+    private void checkInThread(final String email, final String phone, final String password){
+        new Thread(new Runnable() {
             public void run() {
+                responseEmail = false;
+                responsePhone = false;
+                checkEmail(email);
                 checkPhone(phone);
+                int counter = 0;
+                while (!Thread.currentThread().isInterrupted() && counter < 40) {
+                    // проверяем переменную на ответ от сервера
+                    if (responseEmail && responsePhone) {
+                        if (!phoneExistence && !emailExistence) {
+                            mParent.showProgress(false);
+                            mParent.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mParent.nextFragment();
+                                    mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
+                                }
+                            });
+                            return;
+                        } else {
+                            mParent.showProgress(false);
+                            if (mParent.getCurrentFocus() != null) {
+                                Snackbar.make(mParent.getCurrentFocus(),
+                                        "Пользователь с такими данными уже существует!",
+                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {}
+                                }).show();
+                            }
+                            return;
+                        }
+                    }
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    counter++;
+                }
+                if (counter == 40) {
+                    mParent.showProgress(false);
+                    if (mParent.getCurrentFocus() != null) {
+                        Snackbar.make(mParent.getCurrentFocus(),
+                                "Ошибка соединения!",
+                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                            }
+                        }).show();
+                    }
+                }
             }
-        }.start();
+        }).start();
     }
 
-    private void checkEmailOnUiThread(final String email) {
-        new Thread() {
-            public void run() {
-                checkEmail(email);
-            }
-        }.start();
+    private void checkEmail(final String email) {
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("email", email);
+        } catch (JSONException e) {
+            Log.d("DEBUG", "" + e.getMessage());
+        }
+        SocketAPI.getSocket().emit("registration/email_existence", obj)
+                .once("registration/email_existence", new Emitter.Listener() {
+                    @Override
+                    public void call(Object... args) {
+                        responseEmail = true;
+                        emailExistence = (boolean) args[0];
+                    }
+                });
     }
 
     private void checkPhone(final String phone) {
@@ -183,27 +239,11 @@ public class FirstRegistrationFragment extends Fragment {
                 .once("registration/phone_existence", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                responsePhone = true;
                 phoneExistence = (boolean) args[0];
-                Log.d("MAIN", "phone  " + phoneExistence);
             }
         });
     }
 
-    private void checkEmail(final String email) {
-        JSONObject obj = new JSONObject();
-        try {
-            obj.put("email", email);
-        } catch (JSONException e) {
-            Log.d("DEBUG", "" + e.getMessage());
-        }
-        SocketAPI.getSocket().emit("registration/email_existence", obj)
-                .once("registration/email_existence", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                emailExistence = (boolean) args[0];
-                Log.d("MAIN", "email  " + emailExistence);
-            }
-        });
-    }
 }
 

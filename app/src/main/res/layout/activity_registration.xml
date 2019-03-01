@@ -3,16 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:orientation="vertical">
 
     <ProgressBar
         android:id="@+id/progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="203dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_gravity="center|top"
+        android:indeterminate="true"
         android:visibility="gone" />
 
     <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,7 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:scrollbarThumbVertical="@null">
+        android:scrollbarThumbVertical="@null"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
 
     </ScrollView>
 </LinearLayout>

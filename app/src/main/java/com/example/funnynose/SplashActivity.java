@@ -2,24 +2,17 @@ package com.example.funnynose;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.example.funnynose.authentification.AuthenticationActivity;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.funnynose.authentication.AuthenticationActivity;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import io.socket.emitter.Emitter;
 
 public class SplashActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Session.context = getApplicationContext();
 
         Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
         startActivity(intent);
