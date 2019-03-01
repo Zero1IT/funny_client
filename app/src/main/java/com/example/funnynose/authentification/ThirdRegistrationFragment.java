@@ -101,7 +101,7 @@ public class ThirdRegistrationFragment extends Fragment {
         ((RegistrationActivity) getActivity()).nextFragment();
     }
 
-    public void setBirthDate(View v) {
+    private void setBirthDate(View v) {
         new DatePickerDialog(getContext(), birthDateListener,
                 dateAndTime.get(Calendar.YEAR),
                 dateAndTime.get(Calendar.MONTH),
@@ -109,7 +109,7 @@ public class ThirdRegistrationFragment extends Fragment {
                 .show();
     }
 
-    public void setFirstParticipationDate(View v) {
+    private void setFirstParticipationDate(View v) {
         new DatePickerDialog(getContext(), firstParticipationDateListener,
                 dateAndTime.get(Calendar.YEAR),
                 dateAndTime.get(Calendar.MONTH),
@@ -131,7 +131,7 @@ public class ThirdRegistrationFragment extends Fragment {
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
 
-    DatePickerDialog.OnDateSetListener birthDateListener = new DatePickerDialog.OnDateSetListener() {
+    private DatePickerDialog.OnDateSetListener birthDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
             dateAndTime.set(Calendar.YEAR, year);
@@ -141,7 +141,7 @@ public class ThirdRegistrationFragment extends Fragment {
         }
     };
 
-    DatePickerDialog.OnDateSetListener firstParticipationDateListener = new DatePickerDialog.OnDateSetListener() {
+    private DatePickerDialog.OnDateSetListener firstParticipationDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
             dateAndTime.set(Calendar.YEAR, year);

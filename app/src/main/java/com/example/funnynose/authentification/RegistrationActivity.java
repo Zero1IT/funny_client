@@ -137,7 +137,6 @@ public class RegistrationActivity extends AppCompatActivity {
             registrationUserData.put("birthday", birthdayDate.getTime());
             registrationUserData.put("firstParticipation", firstParticipationDate.getTime());
             registrationUserData.put("lastParticipation", firstParticipationDate.getTime());
-
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }

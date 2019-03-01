@@ -87,6 +87,9 @@ public class FirstRegistrationFragment extends Fragment {
         boolean cancel = false;
         View v = new View(getContext());
 
+        phoneExistence = true;
+        emailExistence = true;
+
         String password, rPassword, phone, email;
 
         password = mPasswordView.getText().toString();
@@ -141,15 +144,32 @@ public class FirstRegistrationFragment extends Fragment {
         if (cancel) {
             v.requestFocus();
         } else {
-            checkPhone(phone);
-            checkEmail(email);
-            if (!phoneExistence || !emailExistence) {
+
+            checkPhoneOnUiThread(phone);
+            checkEmailOnUiThread(email);
+            if (!phoneExistence && !emailExistence) {
                 ((RegistrationActivity) getActivity()).nextFragment();
                 ((RegistrationActivity) getActivity()).putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
             } else {
                 Toast.makeText(Session.context, "Пользователь с такими данными уже существует!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void checkPhoneOnUiThread(final String phone) {
+        new Thread() {
+            public void run() {
+                checkPhone(phone);
+            }
+        }.start();
+    }
+
+    private void checkEmailOnUiThread(final String email) {
+        new Thread() {
+            public void run() {
+                checkEmail(email);
+            }
+        }.start();
     }
 
     private void checkPhone(final String phone) {
@@ -164,6 +184,7 @@ public class FirstRegistrationFragment extends Fragment {
             @Override
             public void call(Object... args) {
                 phoneExistence = (boolean) args[0];
+                Log.d("MAIN", "phone  " + phoneExistence);
             }
         });
     }
@@ -180,6 +201,7 @@ public class FirstRegistrationFragment extends Fragment {
             @Override
             public void call(Object... args) {
                 emailExistence = (boolean) args[0];
+                Log.d("MAIN", "email  " + emailExistence);
             }
         });
     }
