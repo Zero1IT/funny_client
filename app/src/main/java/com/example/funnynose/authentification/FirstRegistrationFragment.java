@@ -2,8 +2,6 @@ package com.example.funnynose.authentification;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
@@ -18,16 +16,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
-import com.example.funnynose.SplashActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import io.socket.emitter.Emitter;
@@ -37,6 +32,7 @@ public class FirstRegistrationFragment extends Fragment {
     private EditText mPhoneView;
     private EditText mPasswordView;
     private EditText mRepeatPasswordView;
+    private RegistrationActivity mParent;
 
     private boolean phoneExistence;
     private boolean emailExistence;
@@ -50,7 +46,7 @@ public class FirstRegistrationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        mParent = (RegistrationActivity) getActivity();
         mEmailView = view.findViewById(R.id.email);
         mPhoneView = view.findViewById(R.id.phone);
         mPhoneView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
@@ -69,13 +65,19 @@ public class FirstRegistrationFragment extends Fragment {
         mOpenReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((RegistrationActivity) getActivity()).exitFromRegistration();
+                mParent.exitFromRegistration();
             }
         });
 
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-            TelephonyManager tMgr = (TelephonyManager) getActivity().getSystemService(Context.TELEPHONY_SERVICE);
-            String phoneNumber = tMgr.getLine1Number();
+        Context context = getContext();
+
+        if (context == null) {
+            throw new NullPointerException("Context is null");
+        }
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+            TelephonyManager tMgr = (TelephonyManager) mParent.getSystemService(Context.TELEPHONY_SERVICE);
+            String phoneNumber = tMgr.getLine1Number(); //TODO: узнать почему - исправить
             if (phoneNumber != null) {
                 mPhoneView.setText(phoneNumber);
             }
@@ -144,10 +146,10 @@ public class FirstRegistrationFragment extends Fragment {
             checkPhone(phone);
             checkEmail(email);
             if (!phoneExistence || !emailExistence) {
-                ((RegistrationActivity) getActivity()).nextFragment();
-                ((RegistrationActivity) getActivity()).putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
+                mParent.nextFragment();
+                mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
             } else {
-                Toast.makeText(Session.context, "Пользователь с такими данными уже существует!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Пользователь с такими данными уже существует!", Toast.LENGTH_SHORT).show();
             }
         }
     }

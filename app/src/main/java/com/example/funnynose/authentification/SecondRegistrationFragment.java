@@ -1,24 +1,16 @@
 package com.example.funnynose.authentification;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+
 import android.os.Bundle;
-import android.telephony.PhoneNumberFormattingTextWatcher;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
 
 import org.json.JSONException;
@@ -26,9 +18,6 @@ import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import io.socket.emitter.Emitter;
 
@@ -109,10 +98,13 @@ public class SecondRegistrationFragment extends Fragment {
         } else {
             checkNickname(nickname);
             if (!nicknameExistence) {
-                ((RegistrationActivity) getActivity()).nextFragment();
-                ((RegistrationActivity) getActivity()).putSecondFragmentData(nickname, name, surname);
+                RegistrationActivity parent = (RegistrationActivity) getActivity();
+                if (parent != null) {
+                    parent.nextFragment();
+                    parent.putSecondFragmentData(nickname, name, surname);
+                }
             } else {
-                Toast.makeText(Session.context, "Пользователь с таким псевдонимом уже существует!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Пользователь с таким псевдонимом уже существует!", Toast.LENGTH_SHORT).show();
             }
         }
     }

@@ -26,8 +26,6 @@ public class Session {
     //private static boolean mSessionActive;
     //private static boolean mOnline;
 
-    public static Context context;
-
     private Session() {}
 
     public static Session currentSession() {
@@ -75,7 +73,7 @@ public class Session {
     //    }, 100);
     //}
 
-    public static boolean isOnline() {
+    public static boolean isOnline(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if (netInfo != null && netInfo.isConnectedOrConnecting()) {

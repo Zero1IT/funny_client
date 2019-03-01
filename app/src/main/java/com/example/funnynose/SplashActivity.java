@@ -19,8 +19,6 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Session.context = getApplicationContext();
-
         Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
         startActivity(intent);
         finish();

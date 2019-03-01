@@ -10,8 +10,8 @@ import io.socket.client.Socket;
 public class SocketAPI {
 
     //private final static String URL = "http://app.funnynose.by";
-    private final static String URL = "http://192.168.0.105:3000";
-    //private final static String URL = "http://192.168.43.1:3000";
+    //private final static String URL = "http://192.168.0.105:3000";
+    private final static String URL = "http://127.0.0.1:3000";
 
     private static Socket mSocket;
 

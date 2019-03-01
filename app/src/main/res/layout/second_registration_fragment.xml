@@ -14,7 +14,7 @@
             android:id="@+id/nickname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Псевдоним"
+            android:hint="@string/alias"
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true" />
@@ -29,7 +29,7 @@
             android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Имя"
+            android:hint="@string/name"
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true" />
@@ -44,7 +44,7 @@
             android:id="@+id/surname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Фамилия"
+            android:hint="@string/surname"
             android:inputType="text"
             android:maxLines="1"
             android:singleLine="true" />
@@ -56,7 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Продолжить"
+        android:text="@string/continue_btn"
         android:gravity="center"
         android:textSize="16sp"
         android:textStyle="bold"/>

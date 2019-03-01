@@ -9,7 +9,6 @@ import android.view.MenuItem;
 import com.example.funnynose.MainActivity;
 import com.example.funnynose.Permission;
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
 
 import org.json.JSONException;
@@ -21,8 +20,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -33,6 +30,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private FragmentManager mFragmentManager;
     private Fragment[] mFragments;
     private int fragmentIndex;
+    private ActionBar mActionBar;
 
     private JSONObject registrationUserData;
 
@@ -42,14 +40,16 @@ public class RegistrationActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_registration);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle("Регистрация");
+        mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setTitle("Регистрация");
         }
 
         mFragmentManager = getSupportFragmentManager();
-        mFragments = new Fragment[]{new FirstRegistrationFragment(), new SecondRegistrationFragment(),
-                new ThirdRegistrationFragment()};
+        mFragments = new Fragment[] {
+                new FirstRegistrationFragment(),
+                new SecondRegistrationFragment(),
+                new ThirdRegistrationFragment() };
         Fragment fragment = mFragmentManager.findFragmentById(R.id.registration_frame);
         if (fragment == null) {
             mFragmentManager.beginTransaction().add(R.id.registration_frame, mFragments[0]).commit();
@@ -74,8 +74,10 @@ public class RegistrationActivity extends AppCompatActivity {
             mFragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.registration_frame, mFragments[fragmentIndex]).commit();
             if (fragmentIndex > 0) {
-                getSupportActionBar().setHomeButtonEnabled(true);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                if (mActionBar != null) {
+                    mActionBar.setHomeButtonEnabled(true);
+                    mActionBar.setDisplayHomeAsUpEnabled(true);
+                }
             }
         } else {
             Log.d("DEBUG", "---> Server");
@@ -85,7 +87,7 @@ public class RegistrationActivity extends AppCompatActivity {
                         public void call(Object... args) {
                             if ((boolean) args[0]) {
                                 Log.d("DEBUG", "reg true");
-                                Intent intent = new Intent(Session.context, MainActivity.class);
+                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             } else {
@@ -103,8 +105,10 @@ public class RegistrationActivity extends AppCompatActivity {
             mFragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                     .replace(R.id.registration_frame, mFragments[fragmentIndex]).commit();
             if (fragmentIndex == 0) {
-                getSupportActionBar().setHomeButtonEnabled(false);
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                if (mActionBar != null) {
+                    mActionBar.setHomeButtonEnabled(false);
+                    mActionBar.setDisplayHomeAsUpEnabled(false);
+                }
             }
         } else {
             exitFromRegistration();
@@ -149,7 +153,7 @@ public class RegistrationActivity extends AppCompatActivity {
         alertDialog.setMessage("Вы точно хотите прервать регистрацию?");
         alertDialog.setPositiveButton("Подтвердить", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-                Intent intent = new Intent(Session.context, AuthenticationActivity.class);
+                Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
                 startActivity(intent);
                 finish();
             }

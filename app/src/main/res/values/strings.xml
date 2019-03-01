@@ -13,4 +13,15 @@
     <string name="surname">Фамилия</string>
     <string name="email">E-mail</string>
     <string name="city">Город</string>
+    <string name="reg_by_dima">Ещё нет аккаунта? Зарегистрируйтесь!</string>
+    <string name="enter">Вход</string>
+    <string name="password">Пароль</string>
+    <string name="phone">Номер телефона</string>
+    <string name="auth_by_dima">Уже есть аккаунт? Просто войдите!</string>
+    <string name="repeat_pass">Повторите пароль</string>
+    <string name="alias">Псевдоним</string>
+    <string name="select_city">Выберите ваш город: </string>
+    <string name="birthday">Выбрать день рождения</string>
+    <string name="select_first_what">Выбрать дату первого участия</string>
+    <string name="end_registration">Завершить регистрацию</string>
 </resources>

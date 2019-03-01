@@ -1,6 +1,7 @@
 package com.example.funnynose.authentification;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -25,13 +26,13 @@ import androidx.fragment.app.Fragment;
 
 public class ThirdRegistrationFragment extends Fragment {
 
-    private Spinner mChooseCitySpinner;
     private TextView mBirthDate;
     private TextView mFirstParticipationDate;
 
     private Calendar dateAndTime = Calendar.getInstance();
     private Date birthdayDate;
     private Date firstParticipationDate;
+    private Context mContext;
 
     private String city;
 
@@ -46,11 +47,13 @@ public class ThirdRegistrationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mChooseCitySpinner = view.findViewById(R.id.choose_city);
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                getContext(), android.R.layout.simple_spinner_item, Constants.cities);
-        mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
+        Spinner mChooseCitySpinner = view.findViewById(R.id.choose_city);
+        mContext = getContext();
+        if (mContext != null) {
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
+                    mContext, android.R.layout.simple_spinner_item, Constants.cities);
+            mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
+        }
 
         city = Constants.cities[0];
 
@@ -72,7 +75,7 @@ public class ThirdRegistrationFragment extends Fragment {
         mBtnBirthDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setBirthDate(v);
+                setBirthDate();
             }
         });
 
@@ -80,7 +83,7 @@ public class ThirdRegistrationFragment extends Fragment {
         mBtnFirstParticipationDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setFirstParticipationDate(v);
+                setFirstParticipationDate();
             }
         });
 
@@ -97,24 +100,31 @@ public class ThirdRegistrationFragment extends Fragment {
     }
 
     private void completeRegistration() {
-        ((RegistrationActivity) getActivity()).putThirdFragmentData(city, birthdayDate, firstParticipationDate);
-        ((RegistrationActivity) getActivity()).nextFragment();
+        RegistrationActivity parent = (RegistrationActivity) getActivity();
+        if (parent != null) {
+            parent.putThirdFragmentData(city, birthdayDate, firstParticipationDate);
+            parent.nextFragment();
+        }
     }
 
-    public void setBirthDate(View v) {
-        new DatePickerDialog(getContext(), birthDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH))
-                .show();
+    private void setBirthDate() {
+        if (mContext != null) {
+            new DatePickerDialog(mContext, birthDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH))
+                    .show();
+        }
     }
 
-    public void setFirstParticipationDate(View v) {
-        new DatePickerDialog(getContext(), firstParticipationDateListener,
-                dateAndTime.get(Calendar.YEAR),
-                dateAndTime.get(Calendar.MONTH),
-                dateAndTime.get(Calendar.DAY_OF_MONTH))
-                .show();
+    private void setFirstParticipationDate() {
+        if (mContext != null) {
+            new DatePickerDialog(mContext, firstParticipationDateListener,
+                    dateAndTime.get(Calendar.YEAR),
+                    dateAndTime.get(Calendar.MONTH),
+                    dateAndTime.get(Calendar.DAY_OF_MONTH))
+                    .show();
+        }
     }
 
     private void setInitialBirthDate() {
@@ -131,7 +141,8 @@ public class ThirdRegistrationFragment extends Fragment {
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
 
-    DatePickerDialog.OnDateSetListener birthDateListener = new DatePickerDialog.OnDateSetListener() {
+    private DatePickerDialog.OnDateSetListener birthDateListener =
+            new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
             dateAndTime.set(Calendar.YEAR, year);
@@ -141,7 +152,8 @@ public class ThirdRegistrationFragment extends Fragment {
         }
     };
 
-    DatePickerDialog.OnDateSetListener firstParticipationDateListener = new DatePickerDialog.OnDateSetListener() {
+    private DatePickerDialog.OnDateSetListener firstParticipationDateListener =
+            new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
             dateAndTime.set(Calendar.YEAR, year);
