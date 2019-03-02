@@ -13,7 +13,9 @@ import android.widget.ProgressBar;
 import com.example.funnynose.MainActivity;
 import com.example.funnynose.Permission;
 import com.example.funnynose.R;
+import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
+import com.example.funnynose.User;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
@@ -109,50 +111,34 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private void finishRegistrationInThread(){
         new Thread(new Runnable() {
+            @Override
             public void run() {
-                int counter = 0;
-                while (!Thread.currentThread().isInterrupted() && counter < 40) {
-                    // проверяем переменную на ответ от сервера
-                    if (responseRegistration) {
-                        if (successfulRegistration) {
+                long start = System.currentTimeMillis();
+                while (!responseRegistration) {
+                    if (System.currentTimeMillis() - start > 5000) {
+                        if (getCurrentFocus() != null) {
                             showProgress(false);
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                            return;
-                        } else {
-                            showProgress(false);
-                            if (getCurrentFocus() != null) {
-                                Snackbar.make(getCurrentFocus(),
-                                        "Пользователь с такими данными уже существует!",
-                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                    }
-                                }).show();
-                            }
-                            return;
+                            Snackbar.make(getCurrentFocus(), "Ошибка соединения",
+                                    Snackbar.LENGTH_SHORT).show();
                         }
+                        return;
                     }
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    counter++;
                 }
-                if (counter == 40) {
+                if (successfulRegistration) {
+                    showProgress(false);
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    if (!User.init(registrationUserData)) {
+                        Log.d(Session.TAG, "error init user");
+                    }
+                    finish();
+                } else {
+                    responseRegistration = false;
                     showProgress(false);
                     if (getCurrentFocus() != null) {
                         Snackbar.make(getCurrentFocus(),
-                                "Ошибка соединения!",
-                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        }).show();
+                                "Пользователь с такими данными уже существует!",
+                                Snackbar.LENGTH_SHORT).setAction("OK", null).show();
                     }
                 }
             }
@@ -228,7 +214,8 @@ public class RegistrationActivity extends AppCompatActivity {
             public void run() {
                 int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
                 mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                mProgressView.animate().setDuration(shortAnimTime).setListener(new AnimatorListenerAdapter() {
+                mProgressView.animate().setDuration(shortAnimTime).
+                        setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);

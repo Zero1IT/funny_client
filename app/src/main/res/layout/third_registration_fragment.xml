@@ -21,7 +21,8 @@
             android:id="@+id/choose_city"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:spinnerMode="dialog">
+            android:transformPivotX="@dimen/activity_vertical_margin"
+            android:spinnerMode="dropdown">
 
         </Spinner>
 
@@ -73,7 +74,8 @@
 
     <Button
         android:id="@+id/complete_button"
-        style="?android:textAppearanceSmall"
+        style="@style/Widget.MaterialComponents.Button"
+        android:textColor="#000"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

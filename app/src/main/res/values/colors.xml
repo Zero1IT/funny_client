@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
     <color name="splashBackground">#F9F9F9</color>
+    <color name="button_continue">#185680</color>
 </resources>
