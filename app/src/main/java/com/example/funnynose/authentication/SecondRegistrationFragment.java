@@ -6,31 +6,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.funnynose.R;
 import com.example.funnynose.SocketAPI;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import io.socket.emitter.Emitter;
 
-public class SecondRegistrationFragment extends Fragment {
-
-    private RegistrationActivity mParent;
+public class SecondRegistrationFragment extends CommonRegistrationFragment {
+    
     private EditText mNicknameView;
     private EditText mNameView;
     private EditText mSurnameView;
 
-    private boolean nicknameExistence;
-    private boolean responseNickname;
-
+    private String nickname, name, surname;
 
     @Nullable
     @Override
@@ -42,11 +36,11 @@ public class SecondRegistrationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mParent = (RegistrationActivity) getActivity();
+        mContext = getContext();
         mNicknameView = view.findViewById(R.id.nickname);
         mNameView = view.findViewById(R.id.name);
         mSurnameView = view.findViewById(R.id.surname);
-
-        Button mContinueButton = view.findViewById(R.id.continue_button);
+        mContinueButton = view.findViewById(R.id.continue_button);
         mContinueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,9 +51,7 @@ public class SecondRegistrationFragment extends Fragment {
 
     private void continueRegistration() {
         boolean cancel = false;
-        View v = new View(getContext());
-
-        String nickname, name, surname;
+        View v = new View(mContext);
 
         nickname = mNicknameView.getText().toString().trim();
         name = mNameView.getText().toString().trim();
@@ -98,67 +90,19 @@ public class SecondRegistrationFragment extends Fragment {
         if (cancel) {
             v.requestFocus();
         } else {
-            mParent.showProgress(true);
-            checkInThread(nickname, name, surname);
+            checkInThread();
         }
     }
 
-    private void checkInThread(final String nickname, final String name, final String surname){
-        new Thread(new Runnable() {
-            public void run() {
-                responseNickname = false;
-                checkNickname(nickname);
-                int counter = 0;
-                while (!Thread.currentThread().isInterrupted() && counter < 40) {
-                    // проверяем переменную на ответ от сервера
-                    if (responseNickname) {
-                        if (!nicknameExistence) {
-                            mParent.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mParent.nextFragment();
-                                    mParent.putSecondFragmentData(nickname, name, surname);
-                                    mParent.showProgress(false);
-                                }
-                            });
-                            return;
-                        } else {
-                            mParent.showProgress(false);
-                            if (mParent.getCurrentFocus() != null) {
-                                Snackbar.make(mParent.getCurrentFocus(),
-                                        "Пользователь с такими данными уже существует!",
-                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
+    @Override
+    protected void checkInAnyThread() {
+        checkNickname(nickname);
+    }
 
-                                    }
-                                }).show();
-                            }
-                            return;
-                        }
-                    }
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    counter++;
-                }
-                if (counter == 40) { // 50 * 40 = 2000 ms = 2 секунды
-                    mParent.showProgress(false);
-                    if (mParent.getCurrentFocus() != null) {
-                        Snackbar.make(mParent.getCurrentFocus(),
-                                "Ошибка соединения!",
-                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        }).show();
-                    }
-                }
-            }
-        }).start();
+    @Override
+    protected void stepToNextFragment() {
+        mParent.nextFragment();
+        mParent.putSecondFragmentData(nickname, name, surname);
     }
 
     private void checkNickname(final String nickname) {
@@ -166,16 +110,17 @@ public class SecondRegistrationFragment extends Fragment {
         try {
             obj.put("nickname", nickname);
         } catch (JSONException e) {
-            Log.d("DEBUG", "" + e.getMessage());
+            Log.d("DEBUG", e.getMessage());
         }
-        SocketAPI.getSocket().emit("registration/nickname_existence", obj)
-                .once("registration/nickname_existence", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                responseNickname = true;
-                nicknameExistence = (boolean) args[0];
-            }
-        });
+
+        SocketAPI.getSocket().emit("nickname_existence", obj)
+            .once("nickname_existence", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    existence = (boolean) args[0];
+                    response = true;
+                }
+            });
     }
 
 }

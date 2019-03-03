@@ -1,6 +1,9 @@
 package com.example.funnynose;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.example.funnynose.authentication.AuthenticationActivity;
@@ -14,46 +17,21 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
-        startActivity(intent);
+        // TODO: сделать проверку по интернету
+        if (User.getUserAppData(getApplicationContext())) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(getApplicationContext(), AuthenticationActivity.class);
+            startActivity(intent);
+        }
         finish();
 
-        /*
-        if (Session.isOnline()) {
-            SocketAPI.getSocket();
+    }
 
-            Log.d("DEBUG", "1");
-
-            JSONObject obj = new JSONObject();
-            try {
-                obj.put("phone", "ada11ad");
-                obj.put("password", "lol0");
-            } catch (JSONException e) {
-                Log.d("DEBUG", "" + e.getMessage());
-            }
-            SocketAPI.getSocket().emit("authentication", obj)
-                    .once("authentication", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    if ((boolean) args[0]) {
-                        Log.d("DEBUG", "2");
-                        Intent intent = new Intent(Session.context, MainActivity.class);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        Log.d("DEBUG", "3");
-                        Intent intent = new Intent(Session.context, AuthenticationActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                }
-            });
-        } else {
-            // проверка данных пользователя
-            Intent intent = new Intent(Session.context, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        */
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 }

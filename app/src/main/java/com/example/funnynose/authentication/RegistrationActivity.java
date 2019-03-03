@@ -13,7 +13,9 @@ import android.widget.ProgressBar;
 import com.example.funnynose.MainActivity;
 import com.example.funnynose.Permission;
 import com.example.funnynose.R;
+import com.example.funnynose.Session;
 import com.example.funnynose.SocketAPI;
+import com.example.funnynose.User;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
@@ -55,7 +57,6 @@ public class RegistrationActivity extends AppCompatActivity {
         }
 
         mProgressView = findViewById(R.id.progress);
-        Log.d("MAIN", "" + mProgressView);
 
         mFragmentManager = getSupportFragmentManager();
         mFragments = new Fragment[] {
@@ -93,68 +94,54 @@ public class RegistrationActivity extends AppCompatActivity {
             }
         } else {
             responseRegistration = false;
-            showProgress(true);
             successfulRegistration = false;
+            showProgress(true);
             SocketAPI.getSocket().emit("registration", registrationUserData)
                     .once("registration", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
-                            responseRegistration = true;
                             successfulRegistration = (boolean) args[0];
+                            responseRegistration = true;
                         }
                     });
             finishRegistrationInThread();
         }
     }
 
+    // TODO: можно как-то наверное сделать с этим потоком тоже самое
+    // TODO: (вынести в класс или тот класс или интерфейс как-то припахать сюда), что и с потоками в фрагментах,
+    // TODO: потому что он по структуре такой же
     private void finishRegistrationInThread(){
         new Thread(new Runnable() {
+            @Override
             public void run() {
-                int counter = 0;
-                while (!Thread.currentThread().isInterrupted() && counter < 40) {
-                    // проверяем переменную на ответ от сервера
-                    if (responseRegistration) {
-                        if (successfulRegistration) {
-                            showProgress(false);
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                            return;
-                        } else {
-                            showProgress(false);
-                            if (getCurrentFocus() != null) {
-                                Snackbar.make(getCurrentFocus(),
-                                        "Пользователь с такими данными уже существует!",
-                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                    }
-                                }).show();
-                            }
-                            return;
-                        }
-                    }
-                    try {
+                long end = System.currentTimeMillis() + 5000;
+                while (!responseRegistration && System.currentTimeMillis() < end) {
+                    try{
                         Thread.sleep(50);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                        Log.d("DEBUG", e.getMessage());
                     }
-                    counter++;
                 }
-                if (counter == 40) {
-                    showProgress(false);
+                if (successfulRegistration) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    User.userDataFromJson(registrationUserData);
+                    User.setUserAppData(getApplicationContext());
+                    finish();
+                } else if (!responseRegistration) {
+                    if (getCurrentFocus() != null) {
+                        Snackbar.make(getCurrentFocus(), "Ошибка соединения",
+                                Snackbar.LENGTH_SHORT).show();
+                    }
+                } else {
                     if (getCurrentFocus() != null) {
                         Snackbar.make(getCurrentFocus(),
-                                "Ошибка соединения!",
-                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        }).show();
+                                "Пользователь с такими данными уже существует!",
+                                Snackbar.LENGTH_SHORT).setAction("OK", CommonRegistrationFragment.snackOkButton).show();
                     }
                 }
+                showProgress(false);
             }
         }).start();
     }
@@ -228,7 +215,8 @@ public class RegistrationActivity extends AppCompatActivity {
             public void run() {
                 int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
                 mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                mProgressView.animate().setDuration(shortAnimTime).setListener(new AnimatorListenerAdapter() {
+                mProgressView.animate().setDuration(shortAnimTime).
+                        setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);

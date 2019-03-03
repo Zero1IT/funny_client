@@ -1,7 +1,6 @@
 package com.example.funnynose.authentication;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -21,9 +20,8 @@ import java.util.Date;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
-public class ThirdRegistrationFragment extends Fragment {
+public class ThirdRegistrationFragment extends CommonRegistrationFragment {
 
     private TextView mBirthDate;
     private TextView mFirstParticipationDate;
@@ -31,10 +29,8 @@ public class ThirdRegistrationFragment extends Fragment {
     private Calendar dateAndTime = Calendar.getInstance();
     private Date birthdayDate;
     private Date firstParticipationDate;
-    private Context mContext;
 
     private String city;
-
 
     @Nullable
     @Override
@@ -45,12 +41,13 @@ public class ThirdRegistrationFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Spinner mChooseCitySpinner = view.findViewById(R.id.choose_city);
+        mParent = (RegistrationActivity) getActivity();
         mContext = getContext();
+        Spinner mChooseCitySpinner = view.findViewById(R.id.choose_city);
+        
         if (mContext != null) {
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                    mContext, android.R.layout.simple_spinner_item, SocketAPI.cities);
+                    mContext, android.R.layout.simple_spinner_dropdown_item, SocketAPI.cities);
             mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
         }
 
@@ -85,8 +82,8 @@ public class ThirdRegistrationFragment extends Fragment {
             }
         });
 
-        Button mCompleteButton = view.findViewById(R.id.complete_button);
-        mCompleteButton.setOnClickListener(new View.OnClickListener() {
+        mContinueButton = view.findViewById(R.id.complete_button);
+        mContinueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 completeRegistration();
@@ -98,10 +95,9 @@ public class ThirdRegistrationFragment extends Fragment {
     }
 
     private void completeRegistration() {
-        RegistrationActivity parent = (RegistrationActivity) getActivity();
-        if (parent != null) {
-            parent.putThirdFragmentData(city, birthdayDate, firstParticipationDate);
-            parent.nextFragment();
+        if (mParent != null) {
+            mParent.putThirdFragmentData(city, birthdayDate, firstParticipationDate);
+            mParent.nextFragment();
         }
     }
 
@@ -127,14 +123,14 @@ public class ThirdRegistrationFragment extends Fragment {
 
     private void setInitialBirthDate() {
         birthdayDate = dateAndTime.getTime();
-        mBirthDate.setText(DateUtils.formatDateTime(getContext(),
+        mBirthDate.setText(DateUtils.formatDateTime(mContext,
                 dateAndTime.getTimeInMillis(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
 
     private void setInitialFirstParticipationDate() {
         firstParticipationDate = dateAndTime.getTime();
-        mFirstParticipationDate.setText(DateUtils.formatDateTime(getContext(),
+        mFirstParticipationDate.setText(DateUtils.formatDateTime(mContext,
                 dateAndTime.getTimeInMillis(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
@@ -160,6 +156,4 @@ public class ThirdRegistrationFragment extends Fragment {
             setInitialFirstParticipationDate();
         }
     };
-
-
 }

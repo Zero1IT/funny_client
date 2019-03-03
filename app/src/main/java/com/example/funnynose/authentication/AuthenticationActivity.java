@@ -2,6 +2,8 @@ package com.example.funnynose.authentication;
 
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.PhoneNumberFormattingTextWatcher;
@@ -9,11 +11,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.funnynose.MainActivity;
 import com.example.funnynose.R;
 import com.example.funnynose.SocketAPI;
+import com.example.funnynose.User;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
@@ -31,9 +35,11 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     private EditText mPhoneView;
     private EditText mPasswordView;
+    private ProgressBar mProgressView;
 
     private boolean successfulAuthentication;
     private boolean responseAuthentication;
+    private JSONObject jsonResponse;
 
 
     @Override
@@ -45,6 +51,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         if (bar != null)
             bar.setTitle("Авторизация");
 
+        mProgressView = findViewById(R.id.progress);
         mPhoneView = findViewById(R.id.phone);
         mPhoneView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
         mPasswordView = findViewById(R.id.password);
@@ -69,6 +76,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     }
 
     public void signIn() {
+        successfulAuthentication = false;
         responseAuthentication = false;
         String phone = mPhoneView.getText().toString().replace(" ", "").replace("-", "");
         String password = mPasswordView.getText().toString().trim();
@@ -81,94 +89,92 @@ public class AuthenticationActivity extends AppCompatActivity {
                     obj.put("phone", phone);
                     obj.put("password", password);
                 } catch (JSONException e) {
-                    Log.d("DEBUG", "" + e.getMessage());
+                    Log.d("DEBUG", e.getMessage());
                 }
                 SocketAPI.getSocket().emit("authentication", obj)
                         .once("authentication", new Emitter.Listener() {
                             @Override
                             public void call(Object... args) {
+                                try{
+                                    jsonResponse = (JSONObject) args[0];
+                                    successfulAuthentication = (boolean) jsonResponse.get("auth");
+                                } catch (JSONException e) {
+                                    Log.d("DEBUG", e.getMessage());
+                                }
                                 responseAuthentication = true;
-                                successfulAuthentication = (boolean) args[0];
                             }
                         });
                 signInThread();
-            } else {
-                // TODO: заменить прямой вызов Snackbar каким-нибудь методом, чтобы было чище
-                if (getCurrentFocus() != null) {
+            } else if (getCurrentFocus() != null) {
                     Snackbar.make(getCurrentFocus(),
                             "Неправильный номер телефона или пароль",
-                            Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-
-                        }
-                    }).show();
+                            Snackbar.LENGTH_SHORT)
+                            .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
                 }
-            }
         } else {
             if (getCurrentFocus() != null) {
                 Snackbar.make(getCurrentFocus(),
                         "Неправильный номер телефона или пароль",
-                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                }).show();
+                        Snackbar.LENGTH_SHORT)
+                        .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
             }
         }
     }
 
     private void signInThread() {
+        showProgress(true);
         new Thread(new Runnable() {
+            @Override
             public void run() {
-                int counter = 0;
-                while (!Thread.currentThread().isInterrupted() && counter < 40) {
-                    // проверяем переменную на ответ от сервера
-                    if (responseAuthentication) {
-                        if (successfulAuthentication) {
-                            //showProgress(false);
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            startActivity(intent);
-                            finish();
-                            return;
-                        } else {
-                            //showProgress(false);
-                            if (getCurrentFocus() != null) {
-                                Snackbar.make(getCurrentFocus(),
-                                        "Неправильный номер телефона или пароль",
-                                        Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                    }
-                                }).show();
-                            }
-                            return;
-                        }
-                    }
-                    try {
+                long end = System.currentTimeMillis() + 5000;
+                while (!responseAuthentication && System.currentTimeMillis() < end) {
+                    try{
                         Thread.sleep(50);
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
+                        Log.d("DEBUG", e.getMessage());
                     }
-                    counter++;
                 }
-                if (counter == 40) {
-                    //showProgress(false);
+
+                if (successfulAuthentication) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                    User.userDataFromJson(jsonResponse);
+                    User.setUserAppData(getApplicationContext());
+                    finish();
+                } else if (!responseAuthentication) {
+                    if (getCurrentFocus() != null) {
+                        Snackbar.make(getCurrentFocus(), "Ошибка соединения",
+                                Snackbar.LENGTH_SHORT).show();
+                    }
+                }
+                else {
                     if (getCurrentFocus() != null) {
                         Snackbar.make(getCurrentFocus(),
-                                "Ошибка соединения!",
-                                Snackbar.LENGTH_SHORT).setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                            }
-                        }).show();
+                                "Неправильный номер телефона или пароль",
+                                Snackbar.LENGTH_SHORT)
+                                .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
                     }
                 }
+                showProgress(false);
             }
         }).start();
+    }
+
+    public void showProgress(final boolean show) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).
+                setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                    }
+                });
+            }
+        });
     }
 
     public static String hashFunction(final String s) {
@@ -194,5 +200,4 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
         return "";
     }
-
 }
