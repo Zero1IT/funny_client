@@ -11,11 +11,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.funnynose.MainActivity;
-import com.example.funnynose.Permission;
+import com.example.funnynose.constants.Permission;
 import com.example.funnynose.R;
-import com.example.funnynose.Session;
-import com.example.funnynose.SocketAPI;
-import com.example.funnynose.User;
+import com.example.funnynose.network.SocketAPI;
+import com.example.funnynose.constants.User;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;

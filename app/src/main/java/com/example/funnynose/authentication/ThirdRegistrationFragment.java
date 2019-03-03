@@ -13,7 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.funnynose.R;
-import com.example.funnynose.SocketAPI;
+import com.example.funnynose.network.SocketAPI;
 
 import java.util.Calendar;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.example.funnynose;
+package com.example.funnynose.constants;
 
 
 

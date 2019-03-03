@@ -1,6 +1,8 @@
-package com.example.funnynose;
+package com.example.funnynose.network;
 
 import android.util.Log;
+
+import com.example.funnynose.constants.Session;
 
 import java.net.URISyntaxException;
 
@@ -9,8 +11,8 @@ import io.socket.client.Socket;
 
 public class SocketAPI {
 
-    //private final static String URL = "http://app.funnynose.by";
-    private final static String URL = "http://192.168.0.105:3000";
+    private final static String URL = "http://app.funnynose.by";
+//    private final static String URL = "http://192.168.0.105:3000";
 
     public static String[] cities = new String[]{"Гомель", "Минск", "Могилёв",
             "Брест", "Витебск", "Гродно"};

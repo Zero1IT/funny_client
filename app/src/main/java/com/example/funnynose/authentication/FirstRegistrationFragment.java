@@ -15,7 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.funnynose.R;
-import com.example.funnynose.SocketAPI;
+import com.example.funnynose.network.AsyncServerResponse;
+import com.example.funnynose.network.SocketAPI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,8 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
     private EditText mPasswordView;
     private EditText mRepeatPasswordView;
 
+    private AsyncServerResponse mAsyncServerResponse;
+
     private String password, phone, email;
 
     @Nullable
@@ -42,6 +45,23 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                mParent.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mParent.showProgress(false);
+                        mParent.nextFragment();
+                        mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
+                    }
+                });
+            }
+        });
+
+        mAsyncServerResponse.setFailSuccessful(failSuc);
+        mAsyncServerResponse.setFailResponse(failResp);
 
         mParent = (RegistrationActivity) getActivity();
         mContext = getContext();
@@ -135,19 +155,11 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
         if (cancel) {
             v.requestFocus();
         } else {
-            checkInThread();
+            mParent.showProgress(true);
+            changeButtonState();
+            checkEmailPhone(email, phone);
+            mAsyncServerResponse.start();
         }
-    }
-
-    @Override
-    protected void checkInAnyThread() {
-        checkEmailPhone(email, phone);
-    }
-
-    @Override
-    protected void stepToNextFragment() {
-        mParent.nextFragment();
-        mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
     }
 
     private void checkEmailPhone(final String email, final String phone) {
@@ -162,8 +174,8 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
             .once("email_phone_existence", new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    existence = (boolean) args[0];
-                    response = true;
+                    mAsyncServerResponse.setSuccessful(!(boolean) args[0]);
+                    mAsyncServerResponse.setResponse(true);
                 }
             });
     }

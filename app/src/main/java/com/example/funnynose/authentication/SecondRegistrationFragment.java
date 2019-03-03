@@ -9,7 +9,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.example.funnynose.R;
-import com.example.funnynose.SocketAPI;
+import com.example.funnynose.network.AsyncServerResponse;
+import com.example.funnynose.network.SocketAPI;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,17 +25,35 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
     private EditText mNameView;
     private EditText mSurnameView;
 
+    private AsyncServerResponse mAsyncServerResponse;
+
     private String nickname, name, surname;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.second_registration_fragment, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                mParent.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mParent.showProgress(false);
+                        mParent.nextFragment();
+                        mParent.putSecondFragmentData(nickname, name, surname);
+                    }
+                });
+            }
+        });
+
         mParent = (RegistrationActivity) getActivity();
         mContext = getContext();
         mNicknameView = view.findViewById(R.id.nickname);
@@ -90,19 +109,11 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
         if (cancel) {
             v.requestFocus();
         } else {
-            checkInThread();
+            mParent.showProgress(true);
+            changeButtonState();
+            checkNickname(nickname);
+            mAsyncServerResponse.start();
         }
-    }
-
-    @Override
-    protected void checkInAnyThread() {
-        checkNickname(nickname);
-    }
-
-    @Override
-    protected void stepToNextFragment() {
-        mParent.nextFragment();
-        mParent.putSecondFragmentData(nickname, name, surname);
     }
 
     private void checkNickname(final String nickname) {
@@ -117,8 +128,8 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
             .once("nickname_existence", new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    existence = (boolean) args[0];
-                    response = true;
+                    mAsyncServerResponse.setSuccessful(!(boolean) args[0]);
+                    mAsyncServerResponse.setResponse(true);
                 }
             });
     }

@@ -7,6 +7,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.example.funnynose.authentication.AuthenticationActivity;
+import com.example.funnynose.constants.User;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
