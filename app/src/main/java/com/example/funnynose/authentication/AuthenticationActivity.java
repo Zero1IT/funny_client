@@ -98,6 +98,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                                 try{
                                     jsonResponse = (JSONObject) args[0];
                                     successfulAuthentication = (boolean) jsonResponse.get("auth");
+                                    jsonResponse.remove("auth");
                                 } catch (JSONException e) {
                                     Log.d("DEBUG", e.getMessage());
                                 }
