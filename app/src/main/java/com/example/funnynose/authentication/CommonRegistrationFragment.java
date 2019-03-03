@@ -52,10 +52,8 @@ public abstract class CommonRegistrationFragment extends Fragment {
             public void run() {
                 if (mContinueButton.isClickable()) {
                     mContinueButton.setClickable(false);
-                    mContinueButton.setEnabled(false);
                 } else {
                     mContinueButton.setClickable(true);
-                    mContinueButton.setEnabled(true);
                 }
             }
         });
