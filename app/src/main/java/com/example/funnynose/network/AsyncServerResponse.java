@@ -156,7 +156,9 @@ public class AsyncServerResponse extends ThreadGroup {
                     if (!AsyncServerResponse.this.response) {
                         if (!main.mThread.isInterrupted()) {
                             main.mThread.interrupt();
-                            failResponse.call();
+                            if (failResponse != null) {
+                                failResponse.call();
+                            }
                         }
                     }
                 } catch (InterruptedException e) {
