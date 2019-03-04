@@ -40,19 +40,22 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
+        mAsyncServerResponse = new AsyncServerResponse(new AsyncServerResponse.AsyncTask() {
             @Override
             public void call() {
+                mParent.showProgress(false);
                 mParent.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mParent.showProgress(false);
                         mParent.nextFragment();
                         mParent.putSecondFragmentData(nickname, name, surname);
                     }
                 });
             }
         });
+
+        mAsyncServerResponse.setFailResponse(failResp);
+        mAsyncServerResponse.setFailSuccessful(failSuc);
 
         mParent = (RegistrationActivity) getActivity();
         mContext = getContext();

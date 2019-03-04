@@ -1,7 +1,5 @@
 package com.example.funnynose.authentication;
 
-
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
@@ -16,10 +14,10 @@ import android.widget.TextView;
 
 import com.example.funnynose.MainActivity;
 import com.example.funnynose.R;
+import com.example.funnynose.Utilities;
 import com.example.funnynose.network.AsyncServerResponse;
 import com.example.funnynose.network.SocketAPI;
 import com.example.funnynose.constants.User;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +25,7 @@ import org.json.JSONObject;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -38,6 +37,8 @@ public class AuthenticationActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private ProgressBar mProgressView;
 
+    ActionBar mActionBar;
+
     private JSONObject jsonResponse;
 
     private AsyncServerResponse mAsyncServerResponse;
@@ -47,46 +48,14 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
 
-        ActionBar bar = getSupportActionBar();
-        if (bar != null)
-            bar.setTitle("Авторизация");
-
-        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
-                User.userDataFromJson(jsonResponse);
-                User.setUserAppData(getApplicationContext());
-                finish();
-            }
-        });
-
-        mAsyncServerResponse.setFailResponse(new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                showProgress(false);
-                if (getCurrentFocus() != null) {
-                    Snackbar.make(getCurrentFocus(), "Ошибка соединения",
-                            Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        mAsyncServerResponse.setFailSuccessful(new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                showProgress(false);
-                if (getCurrentFocus() != null) {
-                    Snackbar.make(getCurrentFocus(),
-                            "Неправильный номер телефона или пароль",
-                            Snackbar.LENGTH_SHORT)
-                            .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
-                }
-            }
-        });
-
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+            mToolbar.setTitle("Регистрация");
+        }
+        mActionBar = getSupportActionBar();
         mProgressView = findViewById(R.id.progress);
+
         mPhoneView = findViewById(R.id.phone);
         mPhoneView.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
         mPasswordView = findViewById(R.id.password);
@@ -108,6 +77,39 @@ public class AuthenticationActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        initAsyncServerResponse();
+
+    }
+
+    private void initAsyncServerResponse() {
+        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                User.userDataFromJson(jsonResponse);
+                User.setUserAppData(getApplicationContext());
+                finish();
+            }
+        });
+
+        mAsyncServerResponse.setFailResponse(new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Utilities.showSnackbar(getCurrentFocus(), "Ошибка соединения");
+            }
+        });
+
+        mAsyncServerResponse.setFailSuccessful(new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Utilities.showSnackbar(getCurrentFocus(), "Неправильный номер телефона или пароль", true);
+            }
+        });
     }
 
     public void signIn() {
@@ -116,6 +118,7 @@ public class AuthenticationActivity extends AppCompatActivity {
         if (password.length() > 0 && !password.contains(" ")) {
             password = hashFunction(password);
             if (phone.matches("[+]375\\d{9}") && password.length() > 0) {
+                showProgress(true);
                 JSONObject obj = new JSONObject();
                 try {
                     obj.put("phone", phone);
@@ -124,34 +127,20 @@ public class AuthenticationActivity extends AppCompatActivity {
                     Log.d("DEBUG", e.getMessage());
                 }
                 SocketAPI.getSocket().emit("authentication", obj)
-                        .once("authentication", new Emitter.Listener() {
-                            @Override
-                            public void call(Object... args) {
-                                try{
-                                    jsonResponse = (JSONObject) args[0];
-                                    mAsyncServerResponse.setSuccessful((boolean) jsonResponse.get("auth"));
-                                    jsonResponse.remove("auth");
-                                } catch (JSONException e) {
-                                    Log.d("DEBUG", e.getMessage());
-                                }
-                                mAsyncServerResponse.setResponse(true);
-                            }
-                        });
-                showProgress(true);
+                    .once("authentication", new Emitter.Listener() {
+                        @Override
+                        public void call(Object... args) {
+                            jsonResponse = (JSONObject) args[0];
+                            mAsyncServerResponse.setSuccessful((boolean) jsonResponse.remove("auth"));
+                            mAsyncServerResponse.setResponse(true);
+                        }
+                    });
                 mAsyncServerResponse.start();
-            } else if (getCurrentFocus() != null) {
-                    Snackbar.make(getCurrentFocus(),
-                            "Неправильный номер телефона или пароль",
-                            Snackbar.LENGTH_SHORT)
-                            .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
-                }
-        } else {
-            if (getCurrentFocus() != null) {
-                Snackbar.make(getCurrentFocus(),
-                        "Неправильный номер телефона или пароль",
-                        Snackbar.LENGTH_SHORT)
-                        .setAction("OK", CommonRegistrationFragment.snackOkButton).show();
+            } else {
+                Utilities.showSnackbar(getCurrentFocus(), "Неправильный номер телефона или пароль", true);
             }
+        } else {
+            Utilities.showSnackbar(getCurrentFocus(), "Неправильный номер телефона или пароль", true);
         }
     }
 
@@ -160,12 +149,12 @@ public class AuthenticationActivity extends AppCompatActivity {
             @Override
             public void run() {
             int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
             mProgressView.animate().setDuration(shortAnimTime).
                 setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                        mProgressView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
                     }
                 });
             }

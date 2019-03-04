@@ -27,13 +27,17 @@
 
         <activity android:name=".authentication.AuthenticationActivity"
             android:label="Вход"
-            android:screenOrientation="userPortrait">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="userPortrait"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
 
         <activity android:name=".authentication.RegistrationActivity"
             android:label="Регистрация"
-            android:screenOrientation="userPortrait">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="userPortrait"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
 

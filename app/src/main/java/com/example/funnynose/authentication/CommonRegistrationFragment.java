@@ -1,12 +1,10 @@
 package com.example.funnynose.authentication;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
+import com.example.funnynose.Utilities;
 import com.example.funnynose.network.AsyncServerResponse;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.fragment.app.Fragment;
 
@@ -21,11 +19,7 @@ public abstract class CommonRegistrationFragment extends Fragment {
         public void call() {
             mParent.showProgress(false);
             changeButtonState();
-            if (mParent.getCurrentFocus() != null) {
-                Snackbar.make(mParent.getCurrentFocus(),
-                        "Пользователь с такими данными уже существует!",
-                        Snackbar.LENGTH_SHORT).setAction("OK", snackOkButton).show();
-            }
+            Utilities.showSnackbar(mParent.getCurrentFocus(), "Пользователь с такими данными уже существует!", true);
         }
     };
 
@@ -34,16 +28,8 @@ public abstract class CommonRegistrationFragment extends Fragment {
         public void call() {
             mParent.showProgress(false);
             changeButtonState();
-            if (mParent.getCurrentFocus() != null) {
-                Snackbar.make(mParent.getCurrentFocus(), "Ошибка соединения",
-                        Snackbar.LENGTH_SHORT).show();
-            }
+            Utilities.showSnackbar(mParent.getCurrentFocus(), "Ошибка соединения");
         }
-    };
-
-    static View.OnClickListener snackOkButton = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {}
     };
 
     protected void changeButtonState() {
