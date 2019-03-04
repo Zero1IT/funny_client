@@ -46,13 +46,13 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAsyncServerResponse = new AsyncServerResponse(5000, new AsyncServerResponse.AsyncTask() {
+        mAsyncServerResponse = new AsyncServerResponse(new AsyncServerResponse.AsyncTask() {
             @Override
             public void call() {
+                mParent.showProgress(false);
                 mParent.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        mParent.showProgress(false);
                         mParent.nextFragment();
                         mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
                     }
@@ -142,9 +142,9 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
             v = mEmailView;
         }
 
-        if (email.length() < 5) {
+        if (email.length() < 6) {
             cancel = true;
-            mEmailView.setError("Email должен содержать не менее 5 символов");
+            mEmailView.setError("Email должен содержать не менее 6 символов");
             v = mEmailView;
         } else if (email.length() > 25) {
             cancel = true;

@@ -19,7 +19,7 @@ public class AsyncServerResponse extends ThreadGroup {
 
     private boolean response = false;
     private boolean successful;
-    private long timeout;
+    private long timeout = PAUSE;
 
     private DThread main;
     private Thread waiter;

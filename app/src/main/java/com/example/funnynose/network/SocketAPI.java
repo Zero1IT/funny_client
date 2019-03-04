@@ -1,5 +1,8 @@
 package com.example.funnynose.network;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import com.example.funnynose.constants.Session;
@@ -10,6 +13,7 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 
 public class SocketAPI {
+
 
     private final static String URL = "http://app.funnynose.by";
     //private final static String URL = "http://192.168.0.105:3000";
@@ -43,4 +47,11 @@ public class SocketAPI {
         mSocket.disconnect();
         mSocket = null;
     }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
 }

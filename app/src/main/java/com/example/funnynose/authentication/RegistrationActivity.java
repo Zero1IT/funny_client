@@ -11,11 +11,12 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.funnynose.MainActivity;
+import com.example.funnynose.Utilities;
 import com.example.funnynose.constants.Permission;
 import com.example.funnynose.R;
+import com.example.funnynose.network.AsyncServerResponse;
 import com.example.funnynose.network.SocketAPI;
 import com.example.funnynose.constants.User;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,27 +38,34 @@ public class RegistrationActivity extends AppCompatActivity {
     private FragmentManager mFragmentManager;
     private Fragment[] mFragments;
     private int fragmentIndex;
+
     private ActionBar mActionBar;
     private ProgressBar mProgressView;
 
     private JSONObject registrationUserData;
 
-    private boolean successfulRegistration;
-    private boolean responseRegistration;
+    private AsyncServerResponse mAsyncServerResponse;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_registration);
 
-        mActionBar = getSupportActionBar();
-        if (mActionBar != null) {
-            mActionBar.setTitle("Регистрация");
+        Toolbar mToolbar = findViewById(R.id.toolbar);
+        if (mToolbar != null) {
+            setSupportActionBar(mToolbar);
+            mToolbar.setTitle("Регистрация");
         }
-
+        mActionBar = getSupportActionBar();
         mProgressView = findViewById(R.id.progress);
 
+        registrationUserData = new JSONObject();
+
+        initFragments();
+        initAsyncServerResponse();
+    }
+
+    private void initFragments() {
         mFragmentManager = getSupportFragmentManager();
         mFragments = new Fragment[] {
                 new FirstRegistrationFragment(),
@@ -67,17 +76,36 @@ public class RegistrationActivity extends AppCompatActivity {
             mFragmentManager.beginTransaction().add(R.id.registration_frame, mFragments[0]).commit();
             fragmentIndex = 0;
         }
+    }
 
-        registrationUserData = new JSONObject();
-        try {
-            registrationUserData.put("status", "");
-            registrationUserData.put("permission", Permission.LOSER);
-            registrationUserData.put("hospitalsPerYear", 0);
-            registrationUserData.put("trainingsPerYear", 0);
-            registrationUserData.put("othersPerYear", 0);
-        } catch (JSONException e) {
-            Log.d("DEBUG", "" + e.getMessage());
-        }
+    private void initAsyncServerResponse() {
+        mAsyncServerResponse = new AsyncServerResponse(new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+                User.userDataFromJson(registrationUserData);
+                User.setUserAppData(getApplicationContext());
+                finish();
+            }
+        });
+
+        mAsyncServerResponse.setFailResponse(new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Utilities.showSnackbar(getCurrentFocus(), "Ошибка соединения");
+            }
+        });
+
+        mAsyncServerResponse.setFailSuccessful(new AsyncServerResponse.AsyncTask() {
+            @Override
+            public void call() {
+                showProgress(false);
+                Utilities.showSnackbar(getCurrentFocus(), "Ошибка регистрации", true);
+            }
+        });
     }
 
     public void nextFragment(){
@@ -92,59 +120,29 @@ public class RegistrationActivity extends AppCompatActivity {
                 }
             }
         } else {
-            responseRegistration = false;
-            successfulRegistration = false;
             showProgress(true);
+
+            try {
+                registrationUserData.put("status", "");
+                registrationUserData.put("permission", Permission.LOSER);
+                registrationUserData.put("hospitalsPerYear", 0);
+                registrationUserData.put("trainingsPerYear", 0);
+                registrationUserData.put("othersPerYear", 0);
+            } catch (JSONException e) {
+                Log.d("DEBUG", e.getMessage());
+            }
+
             SocketAPI.getSocket().emit("registration", registrationUserData)
                     .once("registration", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
-                            successfulRegistration = (boolean) args[0];
-                            responseRegistration = true;
+                            mAsyncServerResponse.setSuccessful((boolean) args[0]);
+                            mAsyncServerResponse.setResponse(true);
                         }
                     });
-            finishRegistrationInThread();
+            mAsyncServerResponse.start();
         }
     }
-
-    // TODO: можно как-то наверное сделать с этим потоком тоже самое
-    // TODO: (вынести в класс или тот класс или интерфейс как-то припахать сюда), что и с потоками в фрагментах,
-    // TODO: потому что он по структуре такой же
-    private void finishRegistrationInThread(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                long end = System.currentTimeMillis() + 5000;
-                while (!responseRegistration && System.currentTimeMillis() < end) {
-                    try{
-                        Thread.sleep(50);
-                    } catch (InterruptedException e) {
-                        Log.d("DEBUG", e.getMessage());
-                    }
-                }
-                if (successfulRegistration) {
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intent);
-                    User.userDataFromJson(registrationUserData);
-                    User.setUserAppData(getApplicationContext());
-                    finish();
-                } else if (!responseRegistration) {
-                    if (getCurrentFocus() != null) {
-                        Snackbar.make(getCurrentFocus(), "Ошибка соединения",
-                                Snackbar.LENGTH_SHORT).show();
-                    }
-                } else {
-                    if (getCurrentFocus() != null) {
-                        Snackbar.make(getCurrentFocus(),
-                                "Пользователь с такими данными уже существует!",
-                                Snackbar.LENGTH_SHORT).setAction("OK", CommonRegistrationFragment.snackOkButton).show();
-                    }
-                }
-                showProgress(false);
-            }
-        }).start();
-    }
-
 
     public void previousFragment(){
         if (fragmentIndex > 0) {
@@ -213,12 +211,12 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void run() {
                 int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                mProgressView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
                 mProgressView.animate().setDuration(shortAnimTime).
                         setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                        mProgressView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
                     }
                 });
             }
