@@ -2,6 +2,7 @@ package com.example.funnynose;
 
 import android.os.Bundle;
 
+import com.example.funnynose.events.EventListFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -17,18 +18,30 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Fragment mFragmentToOpen;
+    private DrawerLayout mDrawerLayout;
+    private Toolbar mToolbar;
+
+    //TODO; возможно можно сделать лучше
+    Fragment[] mFragments = new Fragment[] {
+            EventListFragment.newInstance(), ChatFragment.newInstance()
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -39,15 +52,18 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
+                this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        mDrawerLayout.addDrawerListener(toggle);
+        mDrawerLayout.addDrawerListener(mDrawerListener);
         toggle.syncState();
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        // Будет через фрагменты, всё-таки
-        //fragmentManager.beginTransaction().add(R.id.main_frame_layout, null).commit();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.main_frame_layout);
+        if (fragment == null) {
+            fragment = mFragments[0];
+            fragmentManager.beginTransaction().add(R.id.main_frame_layout, fragment).commit();
+        }
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -76,9 +92,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-
+            mToolbar.setTitle("Event");
+            mFragmentToOpen = mFragments[0];
         } else if (id == R.id.nav_gallery) {
-
+            mToolbar.setTitle("Chat");
+            mFragmentToOpen = mFragments[1];
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
@@ -89,8 +107,7 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -103,4 +120,26 @@ public class MainActivity extends AppCompatActivity
             super.onBackPressed();
         }
     }
+
+    private final DrawerLayout.DrawerListener mDrawerListener = new DrawerLayout.DrawerListener() {
+        @Override
+        public void onDrawerSlide(@NonNull View drawerView, float slideOffset) { }
+
+        @Override
+        public void onDrawerOpened(@NonNull View drawerView) { }
+
+        @Override
+        public void onDrawerClosed(@NonNull View drawerView) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            if (mFragmentToOpen == null) {
+                return;
+            }
+            if (mFragmentToOpen != fragmentManager.findFragmentById(R.id.main_frame_layout)) {
+                fragmentManager.beginTransaction().replace(R.id.main_frame_layout, mFragmentToOpen).commit();
+            }
+        }
+
+        @Override
+        public void onDrawerStateChanged(int newState) { }
+    };
 }
