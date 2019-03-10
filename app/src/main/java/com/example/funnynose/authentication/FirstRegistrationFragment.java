@@ -158,7 +158,7 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
             mParent.showProgress(true);
             changeButtonState();
             checkEmailPhone(email, phone);
-            mAsyncServerResponse.start();
+            mAsyncServerResponse.start(getContext());
         }
     }
 

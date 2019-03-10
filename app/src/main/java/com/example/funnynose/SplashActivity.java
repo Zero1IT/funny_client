@@ -29,14 +29,13 @@ public class SplashActivity extends AppCompatActivity {
         if (User.getUserAppData(getApplicationContext())) {
             if (SocketAPI.isOnline(getApplicationContext())) {
                 sendAuthorizationDataToServer();
-                mAsyncServerResponse.start();
+                mAsyncServerResponse.start(getApplicationContext());
             } else {
                 openMainActivity();
             }
         } else {
             openAuthenticationActivity();
         }
-
     }
 
     private void initAsyncServerResponse() {

@@ -140,7 +140,7 @@ public class RegistrationActivity extends AppCompatActivity {
                             mAsyncServerResponse.setResponse(true);
                         }
                     });
-            mAsyncServerResponse.start();
+            mAsyncServerResponse.start(getApplicationContext());
         }
     }
 
