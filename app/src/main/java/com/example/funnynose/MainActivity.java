@@ -2,7 +2,7 @@ package com.example.funnynose;
 
 import android.os.Bundle;
 
-import com.example.funnynose.events.EventListFragment;
+import com.example.funnynose.events.EventPagerFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -24,13 +24,15 @@ import androidx.fragment.app.FragmentManager;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int EVENTS = 0;
+    private static final int CHAT = 1;
+
     private Fragment mFragmentToOpen;
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
 
-    //TODO; возможно можно сделать лучше
-    Fragment[] mFragments = new Fragment[] {
-            EventListFragment.newInstance(), ChatFragment.newInstance()
+    private Fragment[] mFragments = new Fragment[] {
+            EventPagerFragment.newInstance(), ChatFragment.newInstance()
     };
 
     @Override
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_frame_layout);
         if (fragment == null) {
-            fragment = mFragments[0];
+            fragment = mFragments[EVENTS];
             fragmentManager.beginTransaction().add(R.id.main_frame_layout, fragment).commit();
         }
 
@@ -93,10 +95,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             mToolbar.setTitle("Event");
-            mFragmentToOpen = mFragments[0];
+            mFragmentToOpen = mFragments[EVENTS];
         } else if (id == R.id.nav_gallery) {
             mToolbar.setTitle("Chat");
-            mFragmentToOpen = mFragments[1];
+            mFragmentToOpen = mFragments[CHAT];
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {

@@ -5,4 +5,7 @@
     <color name="colorAccent">#D81B60</color>
     <color name="splashBackground">#F9F9F9</color>
     <color name="button_continue">#185680</color>
+    <color name="text_tab">#1F7E74</color>
+    <color name="black_20">#33000000</color>
+    <color name="transparent">#00000000</color>
 </resources>

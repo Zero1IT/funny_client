@@ -11,25 +11,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class EventListFragment extends Fragment {
+public class EventHospitalFragment extends Fragment {
 
-    public static EventListFragment newInstance() {
+    public static EventHospitalFragment newInstance() {
 
-        //Bundle args = new Bundle();
+        Bundle args = new Bundle();
 
-        EventListFragment fragment = new EventListFragment();
-        //fragment.setArguments(args);
+        EventHospitalFragment fragment = new EventHospitalFragment();
+        fragment.setArguments(args);
         return fragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_event_list, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+        return inflater.inflate(R.layout.events_hospital, container, false);
     }
 }
