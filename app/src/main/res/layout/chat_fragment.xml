@@ -8,15 +8,15 @@
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/chat_refresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/chat_divider"
+        android:layout_height="match_parent"
         android:background="#ffdbd1">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chat_message_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scrollbars="none" />
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:overScrollMode="never"/>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <TextView

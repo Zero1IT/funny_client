@@ -1,5 +1,6 @@
 package com.example.funnynose.network;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.example.funnynose.constants.Session;
@@ -78,7 +79,11 @@ public class AsyncServerResponse extends ThreadGroup {
     /**
      * Запуск асинхронного ожидания сервера
      */
-    public void start() {
+    public void start(Context context) {
+        if (!SocketAPI.isOnline((context)))
+        {
+            return;
+        }
         if (main != null && main.mThread != null && waiter != null) {
             if (main.mThread.isAlive() || waiter.isAlive()) {
                 return;

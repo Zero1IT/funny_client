@@ -38,7 +38,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private String chatName;
     private ChatUpdater chatUpdater;
 
-    public static Fragment newInstance(String chatName) {
+    static Fragment newInstance(String chatName) {
         Fragment fragment = new ChatFragment();
         if (chatName != null) {
             Bundle bundle = new Bundle();
@@ -67,7 +67,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true);
         mMessageList.setLayoutManager(layoutManager);
         MessageListAdapter adapter = new MessageListAdapter(messageList);
         mMessageList.setAdapter(adapter);
@@ -77,9 +76,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         mButtonDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getActivity() != null) {
-                    ((ChatActivity) getActivity()).moveDown();
-                }
+                    moveDown();
             }
         });
 
@@ -107,11 +104,16 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 } else {
                     mButtonDown.hide();
                 }
-                if (dy < -5 || dy > 5) {
-                    if (layoutManager.findFirstCompletelyVisibleItemPosition() >= 0) {
+                if (dy < -3 || dy > 3) {
+                    if (layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
+                        mTextDate.setVisibility(View.VISIBLE);
                         mTextDate.setText(dateFormat.format(messageList.get(layoutManager.
                                 findFirstCompletelyVisibleItemPosition()).time));
                     }
+                }
+
+                if (layoutManager.findFirstVisibleItemPosition() == 0) {
+                    mTextDate.setVisibility(View.INVISIBLE);
                 }
 
                 super.onScrolled(recyclerView, dx, dy);
@@ -119,15 +121,15 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         });
     }
 
-    public void addNewMessage(Message msg) {
+    void addNewMessage(Message msg) {
         chatUpdater.addNewMessage(msg);
     }
 
-    public void moveDown() {
+    void moveDown() {
         mMessageList.scrollToPosition(messageList.size() - 1);
     }
 
-    public String getChatName() {
+    String getChatName() {
         return chatName;
     }
 

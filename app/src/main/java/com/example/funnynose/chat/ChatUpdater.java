@@ -19,7 +19,7 @@ import io.socket.emitter.Emitter;
 import java.util.ArrayList;
 
 
-public class ChatUpdater {
+class ChatUpdater {
 
     private String chatName;
 
@@ -37,7 +37,7 @@ public class ChatUpdater {
 
     private Object object;
 
-    public ChatUpdater(FragmentActivity activity, MessageListAdapter adapter,
+    ChatUpdater(FragmentActivity activity, MessageListAdapter adapter,
                        RecyclerView mMessageList, ArrayList<Message> messageArray, String chatName) {
         this.activity = activity;
         this.adapter = adapter;
@@ -74,7 +74,7 @@ public class ChatUpdater {
                                 responseLastMessages.setResponse(true);
                             }
                     });
-                responseLastMessages.start();
+                responseLastMessages.start(activity);
 
             } else {
                 messageArray.addAll(chatCache.getMessagesFromTo());
@@ -185,7 +185,7 @@ public class ChatUpdater {
     }
 
 
-    public void refreshChat() {
+    void refreshChat() {
         long lastMessageKey = getLastMessageKey();
         if (lastMessageKey == 1) {
             return;
@@ -276,10 +276,10 @@ public class ChatUpdater {
                         responseRefreshMessages.setResponse(true);
                     }
                 });
-        responseRefreshMessages.start();
+        responseRefreshMessages.start(activity);
     }
 
-    public void addNewMessage(Message msg) {
+    void addNewMessage(Message msg) {
         messageArray.add(msg);
         activity.runOnUiThread(new Runnable() {
             @Override

@@ -115,7 +115,7 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
             mParent.showProgress(true);
             changeButtonState();
             checkNickname(nickname);
-            mAsyncServerResponse.start();
+            mAsyncServerResponse.start(getContext());
         }
     }
 

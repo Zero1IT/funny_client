@@ -135,7 +135,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                             mAsyncServerResponse.setResponse(true);
                         }
                     });
-                mAsyncServerResponse.start();
+                mAsyncServerResponse.start(getApplicationContext());
             } else {
                 Utilities.showSnackbar(getCurrentFocus(), "Неправильный номер телефона или пароль", true);
             }

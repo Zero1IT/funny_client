@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.funnynose.R;
+import com.example.funnynose.chat.holders.ReceivedMessageHolder;
+import com.example.funnynose.chat.holders.SentMessageHolder;
 import com.example.funnynose.constants.User;
 
 import java.util.ArrayList;
@@ -20,7 +22,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     private ArrayList<Message> messageList;
 
-    public MessageListAdapter(ArrayList<Message> messageList) {
+    MessageListAdapter(ArrayList<Message> messageList) {
         this.messageList = messageList;
     }
 

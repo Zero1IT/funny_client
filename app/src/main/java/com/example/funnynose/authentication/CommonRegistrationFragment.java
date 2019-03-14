@@ -8,7 +8,7 @@ import com.example.funnynose.network.AsyncServerResponse;
 
 import androidx.fragment.app.Fragment;
 
-public abstract class CommonRegistrationFragment extends Fragment {
+abstract class CommonRegistrationFragment extends Fragment {
 
     RegistrationActivity mParent;
     Context mContext;
@@ -32,7 +32,7 @@ public abstract class CommonRegistrationFragment extends Fragment {
         }
     };
 
-    protected void changeButtonState() {
+    void changeButtonState() {
         mParent.runOnUiThread(new Runnable() {
             @Override
             public void run() {
