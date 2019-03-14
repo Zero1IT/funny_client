@@ -31,6 +31,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 public class RegistrationActivity extends AppCompatActivity {
@@ -39,6 +40,7 @@ public class RegistrationActivity extends AppCompatActivity {
     private Fragment[] mFragments;
     private int fragmentIndex;
 
+    private Toolbar mToolbar;
     private ActionBar mActionBar;
     private ProgressBar mProgressView;
 
@@ -51,11 +53,10 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        Toolbar mToolbar = findViewById(R.id.toolbar);
-        if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
-            mToolbar.setTitle("Регистрация");
-        }
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setTitle("Регистрация");
+
         mActionBar = getSupportActionBar();
         mProgressView = findViewById(R.id.progress);
 

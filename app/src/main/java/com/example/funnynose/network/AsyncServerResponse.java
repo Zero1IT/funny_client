@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.example.funnynose.constants.Session;
 
+import java.util.UUID;
+
 /**
  * @author Alex
  * Ассинхронное ожидание ответа от сервера
@@ -25,7 +27,7 @@ public class AsyncServerResponse extends ThreadGroup {
     private Thread waiter;
 
     private AsyncServerResponse() {
-        super(GROUP_NAME);
+        super(GROUP_NAME + UUID.randomUUID().toString().substring(0, 12));
     }
 
     public AsyncServerResponse(AsyncTask func) {
@@ -42,7 +44,6 @@ public class AsyncServerResponse extends ThreadGroup {
         this(func);
         response = r;
         successful = s;
-        timeout = PAUSE;
     }
 
 

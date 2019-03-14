@@ -51,12 +51,12 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
             mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
         }
 
-        city = SocketAPI.cities[0];
+        city = SocketAPI.cities.get(0);
 
         mChooseCitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
                                        View itemSelected, int selectedItemPosition, long selectedId) {
-                city = SocketAPI.cities[selectedItemPosition];
+                city = SocketAPI.cities.get(selectedItemPosition);
             }
             public void onNothingSelected(AdapterView<?> parent) {}
         });

@@ -1,9 +1,11 @@
 package com.example.funnynose;
 
+import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.funnynose.R;
+import com.example.funnynose.chat.ChatActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -47,17 +49,13 @@ public abstract class NavigationActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_chat) {
+            Intent intent = new Intent(this, ChatActivity.class);
+            startActivity(intent);
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_users) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_settings) {
 
         }
 

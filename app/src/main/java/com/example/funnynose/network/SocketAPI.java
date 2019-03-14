@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.funnynose.constants.Session;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -17,8 +18,11 @@ public class SocketAPI {
     //private final static String URL = "http://app.funnynose.by";
     private final static String URL = "http://192.168.0.105:3000";
 
-    public static String[] cities = new String[]{"Гомель", "Минск", "Могилёв",
-            "Брест", "Витебск", "Гродно"};
+    public static ArrayList<String> cities = new ArrayList<String>() {{add("Гомель"); add("Минск"); add("Могилёв");
+            add("Брест"); add("Витебск"); add("Гродно");}};
+
+    public static String[] chatNames = new String[]{"common", "gomel", "minsk",
+            "mogilev", "brest", "vitebsk", "grodno"};
 
     private static Socket mSocket;
 

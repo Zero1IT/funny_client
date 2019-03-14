@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.funnynose.authentication.AuthenticationActivity;
 import com.example.funnynose.constants.User;
+import com.example.funnynose.db.Database;
 import com.example.funnynose.network.AsyncServerResponse;
 import com.example.funnynose.network.SocketAPI;
 
@@ -25,6 +26,7 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         initAsyncServerResponse();
+        Database.initDatabase(getApplicationContext());
 
         if (User.getUserAppData(getApplicationContext())) {
             if (SocketAPI.isOnline(getApplicationContext())) {
