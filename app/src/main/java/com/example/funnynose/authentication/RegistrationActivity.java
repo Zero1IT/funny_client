@@ -52,10 +52,9 @@ public class RegistrationActivity extends AppCompatActivity {
         setContentView(R.layout.activity_registration);
 
         Toolbar mToolbar = findViewById(R.id.toolbar);
-        if (mToolbar != null) {
-            setSupportActionBar(mToolbar);
-            mToolbar.setTitle("Регистрация");
-        }
+        setSupportActionBar(mToolbar);
+        mToolbar.setTitle("Регистрация");
+
         mActionBar = getSupportActionBar();
         mProgressView = findViewById(R.id.progress);
 

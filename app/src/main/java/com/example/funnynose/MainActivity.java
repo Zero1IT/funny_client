@@ -3,8 +3,7 @@ package com.example.funnynose;
 import android.os.Bundle;
 
 import com.example.funnynose.events.EventPagerFragment;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import com.example.funnynose.chat.ChatActivityFragment;
 
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +31,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
 
     private Fragment[] mFragments = new Fragment[] {
-            EventPagerFragment.newInstance(), ChatFragment.newInstance()
+            EventPagerFragment.newInstance(), new ChatActivityFragment()
     };
 
     @Override
@@ -44,15 +43,6 @@ public class MainActivity extends AppCompatActivity
 
         mToolbar = findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -93,19 +83,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_events) {
             mToolbar.setTitle("Event");
             mFragmentToOpen = mFragments[EVENTS];
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_chat) {
             mToolbar.setTitle("Chat");
             mFragmentToOpen = mFragments[CHAT];
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_users) {
 
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_settings) {
 
         }
 

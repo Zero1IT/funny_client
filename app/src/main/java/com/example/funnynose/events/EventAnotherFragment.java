@@ -37,9 +37,6 @@ public class EventAnotherFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         RecyclerView recyclerView = view.findViewById(R.id.scroll_view);
-        if (getContext() == null) {
-            Log.d(Session.TAG, "FUCK NULL CONTEXT");
-        }
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new ScrollEventsAdapter(R.layout.list_event_item, EventsData.getInstance().getEvents()));
     }
