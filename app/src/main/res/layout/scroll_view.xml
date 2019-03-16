@@ -5,6 +5,6 @@
     android:id="@+id/scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:showIn="@layout/list_event_item">
+    tools:showIn="@layout/event_item_another">
 
 </androidx.recyclerview.widget.RecyclerView>

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.funnynose.authentication.AuthenticationActivity;
-import com.example.funnynose.constants.User;
 import com.example.funnynose.db.Database;
 import com.example.funnynose.network.AsyncServerResponse;
 import com.example.funnynose.network.SocketAPI;
@@ -24,6 +23,10 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!User.tryConnectUser(getApplicationContext())) {
+            Utilities.showSnackbar(getCurrentFocus(), "Error");
+        }
 
         initAsyncServerResponse();
         Database.initDatabase(getApplicationContext());

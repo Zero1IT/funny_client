@@ -1,9 +1,11 @@
-package com.example.funnynose.constants;
+package com.example.funnynose;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.funnynose.constants.Session;
+import com.example.funnynose.network.SocketAPI;
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -14,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class User {
+    private static final User ourInstance = new User();
 
     private static final String APP_PREFERENCES = "app_settings";
     private static final String USER_STRING_DATA = "user_string_data";
@@ -24,7 +27,25 @@ public class User {
     // для числовых
     public static Map<String, Long> numericData = new HashMap<>();
 
-    private User() {}
+    public static User getInstance() {
+        return ourInstance;
+    }
+
+    private User() {
+
+    }
+
+    public static boolean tryConnectUser(Context context) {
+
+        //TODO: дополнить
+        if (SocketAPI.isOnline(context)) {
+            SocketAPI.getSocket().emit("event_check", "Release later"); //TODO: идентифицировать вошедшего юзера
+        } else {
+            return false;
+        }
+
+        return true;
+    }
 
     public static void userDataFromJson(JSONObject array) {
         Iterator<String> keys =  array.keys();
@@ -75,5 +96,4 @@ public class User {
         editor.remove(USER_NUMERIC_DATA);
         editor.apply();
     }
-
 }

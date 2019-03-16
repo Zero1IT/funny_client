@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.funnynose.R;
-import com.example.funnynose.constants.User;
+import com.example.funnynose.User;
 import com.example.funnynose.network.SocketAPI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;

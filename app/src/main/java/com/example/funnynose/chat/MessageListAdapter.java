@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import com.example.funnynose.R;
 import com.example.funnynose.chat.holders.ReceivedMessageHolder;
 import com.example.funnynose.chat.holders.SentMessageHolder;
-import com.example.funnynose.constants.User;
+import com.example.funnynose.User;
 
 import java.util.ArrayList;
 

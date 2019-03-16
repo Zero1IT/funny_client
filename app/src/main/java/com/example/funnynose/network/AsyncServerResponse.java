@@ -82,6 +82,7 @@ public class AsyncServerResponse extends ThreadGroup {
     public void start(Context context) {
         if (!SocketAPI.isOnline((context)))
         {
+            failResponse.call();
             return;
         }
         if (main != null && main.mThread != null && waiter != null) {
