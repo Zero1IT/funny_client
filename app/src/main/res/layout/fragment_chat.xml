@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/chat_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/colorPrimary"
+        app:tabGravity="fill"
+        app:tabMode="fixed" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/chat_view_pager"
+        android:layout_width="match_parent"
+        android:layout_below="@id/chat_tab_layout"
+        android:layout_above="@id/chat_input"
+        android:layout_height="match_parent" />
+
+    <EditText
+        android:id="@+id/chat_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#ffeae7"
+        android:inputType="textMultiLine"
+        android:maxLines="5"
+        android:minHeight="50dp"
+        android:paddingLeft="12dp"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingRight="56dp"
+        android:paddingEnd="56dp"
+        android:paddingBottom="6dp"
+        android:singleLine="false"
+        android:textColor="#573f41"
+        android:textSize="18sp"
+        android:hint="@string/write_message"
+        android:autofillHints="@string/write_message"
+        app:layout_anchorGravity="bottom"
+        tools:ignore="UnusedAttribute" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/chat_btn_send"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        app:backgroundTintMode="@color/colorPrimary"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_menu_send"
+        android:tint="@color/colorAccent"
+        app:backgroundTint="@null"
+        app:fabSize="mini"
+        app:rippleColor="@null" />
+
+</RelativeLayout>

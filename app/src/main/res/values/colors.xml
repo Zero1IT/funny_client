@@ -8,4 +8,14 @@
     <color name="text_tab">#1F7E74</color>
     <color name="black_20">#33000000</color>
     <color name="transparent">#00000000</color>
+    <color name="back_event_list">#B6BDBD</color>
+    <color name="another_color">#5E70C5</color>
+    <color name="another_shadow">#9CA3C2</color>
+    <color name="another_pressed">#343B5E</color>
+    <color name="hospital_color">#C52A5C</color>
+    <color name="hospital_shadow">#7A686F</color>
+    <color name="hospital_pressed">#910E39</color>
+    <color name="training_color">#319E33</color>
+    <color name="training_shadow">#778566</color>
+    <color name="training_pressed">#206B22</color>
 </resources>

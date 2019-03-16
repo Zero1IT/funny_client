@@ -15,7 +15,10 @@ public class ScrollEventsAdapter extends BaseQuickAdapter<Event, BaseViewHolder>
 
     @Override
     protected void convert(BaseViewHolder helper, Event item) {
-//        helper.bind(item);
         helper.setText(R.id.event_date, item.getDate());
+        helper.setText(R.id.event_title, item.getTitle());
+        if (item.isFinished()) {
+            helper.setImageResource(R.id.event_finish, item.getIcon());
+        }
     }
 }

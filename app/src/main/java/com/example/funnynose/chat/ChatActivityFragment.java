@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.funnynose.R;
-import com.example.funnynose.constants.User;
+import com.example.funnynose.User;
 import com.example.funnynose.network.SocketAPI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import io.socket.emitter.Emitter;
@@ -42,13 +40,13 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
     private ViewPager viewPager;
     private ViewPagerAdapter adapter;
 
-    public EditText mChatInput;
-    public FloatingActionButton mSendButton;
+    private EditText mChatInput;
+    private FloatingActionButton mSendButton;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_chat, container, false);
+        return inflater.inflate(R.layout.fragment_chat, container, false);
     }
 
     @Override
@@ -81,7 +79,7 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
         setTabOnLongClickListener();
     }
 
-    public void sendMessage() {
+    private void sendMessage() {
         final String messageText = mChatInput.getText().toString().trim();
         if (isCorrectMessageText(messageText) && SocketAPI.isOnline(getContext())) {
 
@@ -130,7 +128,7 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
         return (ChatFragment) adapter.getItem(viewPager.getCurrentItem());
     }
 
-    public void moveDown() {
+    private void moveDown() {
         getCurrentFragment().moveDown();
     }
 
@@ -144,7 +142,7 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
     }
 
     private void setupViewPager(@NotNull ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getActivity().getSupportFragmentManager());
+        adapter = new ViewPagerAdapter(getChildFragmentManager());
         adapter.addFragment(ChatFragment.newInstance(SocketAPI.chatNames[0]), "Общий");
 
         String chatName = SocketAPI.chatNames[SocketAPI.cities.indexOf(User.stringData.get("city")) + 1];
@@ -153,7 +151,7 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
         viewPager.setAdapter(adapter);
     }
 
-    public void openChooseCityDialog() {
+    private void openChooseCityDialog() {
         final ArrayList<String> citiesWithoutCurrent = new ArrayList<>(SocketAPI.cities);
         String deleteThisCity = (String) adapter.getPageTitle(0);
         citiesWithoutCurrent.remove(deleteThisCity);
@@ -172,7 +170,7 @@ public class ChatActivityFragment extends Fragment implements TextView.OnEditorA
         builder.show();
     }
 
-    public void setTabOnLongClickListener() {
+    private void setTabOnLongClickListener() {
         LinearLayout tabStrip = (LinearLayout) tabLayout.getChildAt(0);
         tabStrip.getChildAt(0).setOnLongClickListener(new View.OnLongClickListener() {
             @Override

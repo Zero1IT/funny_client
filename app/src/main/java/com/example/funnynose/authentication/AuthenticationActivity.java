@@ -17,7 +17,7 @@ import com.example.funnynose.R;
 import com.example.funnynose.Utilities;
 import com.example.funnynose.network.AsyncServerResponse;
 import com.example.funnynose.network.SocketAPI;
-import com.example.funnynose.constants.User;
+import com.example.funnynose.User;
 
 import org.json.JSONException;
 import org.json.JSONObject;

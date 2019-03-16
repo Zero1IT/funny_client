@@ -1,12 +1,9 @@
 package com.example.funnynose.adapters;
 
-import android.util.Log;
-
-import com.example.funnynose.constants.Session;
 import com.example.funnynose.events.EventAnotherFragment;
 import com.example.funnynose.events.EventCalendarFragment;
 import com.example.funnynose.events.EventHospitalFragment;
-import com.example.funnynose.events.EventTranningFragment;
+import com.example.funnynose.events.EventTrainingFragment;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,7 +38,7 @@ public class PagerEventsAdapter extends FragmentPagerAdapter {
                 fragment = EventHospitalFragment.newInstance();
                 break;
             case 2:
-                fragment = EventTranningFragment.newInstance();
+                fragment = EventTrainingFragment.newInstance();
                 break;
             case 3:
                 fragment = EventAnotherFragment.newInstance();

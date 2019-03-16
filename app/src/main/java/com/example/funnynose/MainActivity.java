@@ -119,11 +119,10 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onDrawerClosed(@NonNull View drawerView) {
             FragmentManager fragmentManager = getSupportFragmentManager();
-            if (mFragmentToOpen == null) {
-                return;
-            }
-            if (mFragmentToOpen != fragmentManager.findFragmentById(R.id.main_frame_layout)) {
-                fragmentManager.beginTransaction().replace(R.id.main_frame_layout, mFragmentToOpen).commit();
+            if (mFragmentToOpen != null) {
+                if (mFragmentToOpen != fragmentManager.findFragmentById(R.id.main_frame_layout)) {
+                    fragmentManager.beginTransaction().replace(R.id.main_frame_layout, mFragmentToOpen).commit();
+                }
             }
         }
 

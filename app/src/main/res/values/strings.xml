@@ -24,4 +24,6 @@
     <string name="birthday">Выбрать день рождения</string>
     <string name="select_first_what">Выбрать дату первого участия</string>
     <string name="end_registration">Завершить регистрацию</string>
+
+    <string name="write_message">Введите сообщение</string>
 </resources>
