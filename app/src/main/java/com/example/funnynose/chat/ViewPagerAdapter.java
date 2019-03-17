@@ -1,22 +1,24 @@
 package com.example.funnynose.chat;
 
 
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 
 
-public class ViewPagerAdapter extends FragmentPagerAdapter {
+public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
     private final List<Fragment> mFragmentList = new ArrayList<>();
     private final List<String> mFragmentTitleList = new ArrayList<>();
 
-    public ViewPagerAdapter(FragmentManager fm) {
+    ViewPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
@@ -32,6 +34,11 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public Parcelable saveState() {
+        return null;
+    }
+
+    @Override
     public int getCount() {
         return mFragmentList.size();
     }
@@ -41,9 +48,13 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         return mFragmentTitleList.get(position);
     }
 
-    public void addFragment(Fragment fragment, String title) {
-        mFragmentList.add(0, fragment);
-        mFragmentTitleList.add(0, title);
+    void addFragmentByIndex(Fragment fragment, String title, int index) {
+        mFragmentList.add(index, fragment);
+        mFragmentTitleList.add(index, title);
+    }
+
+    void addFragment(Fragment fragment, String title) {
+        addFragmentByIndex(fragment, title, 0);
     }
 
     private void removeFragment(Fragment fragment) {
@@ -52,7 +63,7 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
         notifyDataSetChanged();
     }
 
-    public void replaceFirstFragment(Fragment fragment, String title) {
+    void replaceFirstFragment(Fragment fragment, String title) {
         removeFragment(mFragmentList.get(0));
         addFragment(fragment, title);
         notifyDataSetChanged();

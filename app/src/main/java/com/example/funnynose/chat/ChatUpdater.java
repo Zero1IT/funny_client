@@ -37,6 +37,8 @@ class ChatUpdater {
 
     private Object object;
 
+    private boolean isLoading;
+
     ChatUpdater(FragmentActivity activity, MessageListAdapter adapter,
                        RecyclerView mMessageList, ArrayList<Message> messageArray, String chatName) {
         this.activity = activity;
@@ -44,12 +46,13 @@ class ChatUpdater {
         this.mMessageList = mMessageList;
         this.messageArray = messageArray;
         this.chatName = chatName;
+        chatCache = new ChatCache(chatName);
+        isLoading = false;
         initChat();
     }
 
     private void initChat() {
         if (messageArray.size() == 0) {
-            chatCache = new ChatCache(chatName);
             initResponseRefreshMessages();
             if (SocketAPI.isOnline(activity)) {
                 initResponseLastMessages();
@@ -150,8 +153,12 @@ class ChatUpdater {
                 if (messageArray.size() < 20) {
                     mMessageList.smoothScrollToPosition(messageArray.size() - 1);
                 } else {
-                    if (((LinearLayoutManager) mMessageList.getLayoutManager())
-                            .findLastVisibleItemPosition() + 10 > messageArray.size()) {
+                    int lastVisible = 0;
+                    if (mMessageList.getLayoutManager() != null) {
+                        lastVisible = ((LinearLayoutManager) mMessageList.getLayoutManager())
+                                .findLastVisibleItemPosition();
+                    }
+                    if (lastVisible + 10 > messageArray.size()) {
                         mMessageList.smoothScrollToPosition(messageArray.size() - 1);
                     }
                 }
@@ -186,19 +193,27 @@ class ChatUpdater {
 
 
     void refreshChat() {
+        if (isLoading) {
+            return;
+        }
+
+
         long lastMessageKey = getLastMessageKey();
         if (lastMessageKey == 1) {
             return;
         }
+        isLoading = true;
         final ArrayList<Message> messages = chatCache.getMessagesFromTo(lastMessageKey);
         if (!SocketAPI.isOnline(activity)) {
             messageArray.addAll(0, messages);
             notifyTopMessages(messages.size());
+            isLoading = false;
         } else {
             if (messages.size() > 0) {
                 if (messages.size() - 1 == messages.get(messages.size() - 1).key - messages.get(0).key) {
                     messageArray.addAll(0, messages);
                     notifyTopMessages(messages.size());
+                    isLoading = false;
                     return;
                 }
             }
@@ -206,12 +221,13 @@ class ChatUpdater {
             if (exitByBreak) {
                 requestRefreshMessages(lastMessageKey);
             }
+            isLoading = false;
         }
     }
 
 
     private void notifyTopMessages(final int size) {
-        activity.runOnUiThread(new Runnable() {
+        mMessageList.post(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyItemRangeInserted(0, size);
@@ -229,6 +245,9 @@ class ChatUpdater {
         });
     }
 
+    boolean getIsLoading() {
+        return isLoading;
+    }
 
     private long getLastMessageKey() {
         long lastMessageKey = 0;
@@ -281,6 +300,7 @@ class ChatUpdater {
 
     void addNewMessage(Message msg) {
         messageArray.add(msg);
+        chatCache.addMessage(msg);
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {

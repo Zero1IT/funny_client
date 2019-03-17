@@ -48,13 +48,6 @@
             android:screenOrientation="userPortrait">
         </activity>
 
-        <activity android:name=".chat.ChatActivity"
-            android:label="Чат"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="userPortrait">
-
-        </activity>
-
     </application>
 
 </manifest>

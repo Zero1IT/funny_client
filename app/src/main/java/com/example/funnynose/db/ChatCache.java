@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ChatCache {
 
-    public static final int ONE_TIME_PACKAGE_SIZE = 30;
+    public static final int ONE_TIME_PACKAGE_SIZE = 20;
 
     private String chatName;
     private Cursor cursor;
@@ -24,8 +24,7 @@ public class ChatCache {
         this.chatName = chatName;
     }
 
-
-    public ArrayList<Message> getMessagesFromTo(long from, long to) {
+    public synchronized ArrayList<Message> getMessagesFromTo(long from, long to) {
         cursor = Database.getDatabase().rawQuery("SELECT " + DatabaseHelper.KEY_MESSAGE_KEY + ", " +
                 DatabaseHelper.KEY_MESSAGE_TEXT + ", " + DatabaseHelper.KEY_MESSAGE_NICKNAME + ", " +
                 DatabaseHelper.KEY_MESSAGE_TIME + " FROM " + (DatabaseHelper.TABLE_CHAT + chatName) +
@@ -42,10 +41,12 @@ public class ChatCache {
 
         ArrayList<Message> list = new ArrayList<>();
         if (cursor.moveToLast()) {
-            do {
-                list.add(new Message(cursor.getString(indexText), cursor.getString(indexNickname),
-                        cursor.getLong(indexTime), cursor.getLong(indexKey)));
-            } while (cursor.moveToPrevious());
+            if (cursor.getPosition() > 0) {
+                do {
+                    list.add(new Message(cursor.getString(indexText), cursor.getString(indexNickname),
+                            cursor.getLong(indexTime), cursor.getLong(indexKey)));
+                } while (cursor.moveToPrevious());
+            }
         }
 
         return list;
@@ -59,7 +60,7 @@ public class ChatCache {
         return getMessagesFromTo((long) 1e6);
     }
 
-    public long getLastMessageKey() {
+    public synchronized long getLastMessageKey() {
         cursor = Database.getDatabase().rawQuery("SELECT " + DatabaseHelper.KEY_MESSAGE_KEY +
                 " FROM " + (DatabaseHelper.TABLE_CHAT + chatName) +
                 " WHERE " + DatabaseHelper.KEY_MESSAGE_KEY + " = (SELECT MAX(" +
@@ -71,12 +72,14 @@ public class ChatCache {
         indexKey = cursor.getColumnIndex(DatabaseHelper.KEY_MESSAGE_KEY);
 
         if (cursor.moveToFirst()) {
-            return cursor.getLong(indexKey);
+            if (cursor.getPosition() > 0) {
+                return cursor.getLong(indexKey);
+            }
         }
         return 0;
     }
 
-    public void addMessage(Message msg) {
+    public synchronized void addMessage(Message msg) {
         String sqlQuery = "INSERT OR IGNORE INTO " + (DatabaseHelper.TABLE_CHAT + chatName) +" (" +
                 DatabaseHelper.KEY_MESSAGE_KEY + ", " + DatabaseHelper.KEY_MESSAGE_TEXT + ", " +
                 DatabaseHelper.KEY_MESSAGE_NICKNAME + ", " + DatabaseHelper.KEY_MESSAGE_TIME +
@@ -89,7 +92,6 @@ public class ChatCache {
         sqLiteStatement.bindLong(4, msg.time.getTime());
 
         sqLiteStatement.execute();
-
     }
 
 }

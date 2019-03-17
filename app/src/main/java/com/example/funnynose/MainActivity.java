@@ -1,13 +1,16 @@
 package com.example.funnynose;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.example.funnynose.events.EventPagerFragment;
-import com.example.funnynose.chat.ChatActivityFragment;
+import com.example.funnynose.chat.DoubleChatFragment;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -30,8 +33,10 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
 
+    private MenuItem chatChangeCity;
+
     private Fragment[] mFragments = new Fragment[] {
-            EventPagerFragment.newInstance(), new ChatActivityFragment()
+            EventPagerFragment.newInstance(), new DoubleChatFragment()
     };
 
     @Override
@@ -50,20 +55,23 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.addDrawerListener(mDrawerListener);
         toggle.syncState();
 
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.main_frame_layout);
         if (fragment == null) {
             fragment = mFragments[EVENTS];
             fragmentManager.beginTransaction().add(R.id.main_frame_layout, fragment).commit();
+            navigationView.setCheckedItem(R.id.nav_events);
         }
-
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+        chatChangeCity = menu.findItem(R.id.chat_change_city);
+        chatChangeCity.setVisible(false);
         return true;
     }
 
@@ -71,10 +79,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        if (id == R.id.chat_change_city) {
+            if (mFragmentToOpen.getClass() == DoubleChatFragment.class) {
+                ((DoubleChatFragment) mFragmentToOpen).openChooseCityDialog();
+            }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -84,10 +94,14 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_events) {
-            mToolbar.setTitle("Event");
+            chatChangeCity.setVisible(false);
+
+            mToolbar.setTitle("Мероприятия");
             mFragmentToOpen = mFragments[EVENTS];
         } else if (id == R.id.nav_chat) {
-            mToolbar.setTitle("Chat");
+            chatChangeCity.setVisible(true);
+
+            mToolbar.setTitle("Чат");
             mFragmentToOpen = mFragments[CHAT];
         } else if (id == R.id.nav_users) {
 
@@ -111,7 +125,16 @@ public class MainActivity extends AppCompatActivity
 
     private final DrawerLayout.DrawerListener mDrawerListener = new DrawerLayout.DrawerListener() {
         @Override
-        public void onDrawerSlide(@NonNull View drawerView, float slideOffset) { }
+        public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (getCurrentFocus() != null) {
+                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+
+            float slideX = drawerView.getWidth() * slideOffset;
+            View view = findViewById(R.id.app_bar);
+            view.setTranslationX(slideX);
+        }
 
         @Override
         public void onDrawerOpened(@NonNull View drawerView) { }
@@ -128,5 +151,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onDrawerStateChanged(int newState) { }
+
     };
 }

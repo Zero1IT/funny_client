@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -23,13 +25,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 import io.socket.emitter.Emitter;
 
-public class ChatActivity extends AppCompatActivity implements TextView.OnEditorActionListener {
+public class DoubleChatFragment extends Fragment implements TextView.OnEditorActionListener {
 
     private static final int LIMIT_OF_MESSAGE = 250;
 
@@ -37,30 +41,35 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
     private ViewPager viewPager;
     private ViewPagerAdapter adapter;
 
-    public EditText mChatInput;
-    public FloatingActionButton mSendButton;
+    private FragmentActivity activity;
 
+    private EditText mChatInput;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.double_chat_fragment, container, false);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        setContentView(R.layout.activity_chat);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        activity = getActivity();
 
-        viewPager = findViewById(R.id.chat_view_pager);
+        viewPager = view.findViewById(R.id.chat_view_pager);
         setupViewPager(viewPager);
 
-        tabLayout = findViewById(R.id.chat_tab_layout);
+        tabLayout = view.findViewById(R.id.chat_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setBackgroundColor(getResources().getColor(R.color.transparent));
 
-        mChatInput = findViewById(R.id.chat_input);
+        mChatInput = view.findViewById(R.id.chat_input);
         mChatInput.setImeOptions(EditorInfo.IME_ACTION_SEND);
         mChatInput.setRawInputType(InputType.TYPE_CLASS_TEXT);
         mChatInput.setOnEditorActionListener(this);
 
-        mSendButton = findViewById(R.id.chat_btn_send);
+        FloatingActionButton mSendButton = view.findViewById(R.id.chat_btn_send);
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,9 +80,9 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
         setTabOnLongClickListener();
     }
 
-    public void sendMessage() {
+    private void sendMessage() {
         final String messageText = mChatInput.getText().toString().trim();
-        if (isCorrectMessageText(messageText) && SocketAPI.isOnline(this)) {
+        if (isCorrectMessageText(messageText) && SocketAPI.isOnline(activity)) {
 
             JSONObject obj = new JSONObject();
             try {
@@ -99,7 +108,7 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
         getCurrentFragment().addNewMessage(new Message(messageText, User.stringData.get("nickname"),
                 jsonObject.optLong("time"), jsonObject.optLong("key")));
 
-        runOnUiThread(new Runnable() {
+        activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mChatInput.setText("");
@@ -120,7 +129,7 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
         return (ChatFragment) adapter.getItem(viewPager.getCurrentItem());
     }
 
-    public void moveDown() {
+    private void moveDown() {
         getCurrentFragment().moveDown();
     }
 
@@ -134,12 +143,13 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
     }
 
     private void setupViewPager(@NotNull ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(ChatFragment.newInstance(SocketAPI.chatNames[0]), "Общий");
+
+        adapter = new ViewPagerAdapter(getChildFragmentManager());
 
         String chatName = SocketAPI.chatNames[SocketAPI.cities.indexOf(User.stringData.get("city")) + 1];
         adapter.addFragment(ChatFragment.newInstance(chatName), User.stringData.get("city"));
 
+        adapter.addFragmentByIndex(ChatFragment.newInstance(SocketAPI.chatNames[0]), "Общий", 1);
         viewPager.setAdapter(adapter);
     }
 
@@ -148,7 +158,7 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
         String deleteThisCity = (String) adapter.getPageTitle(0);
         citiesWithoutCurrent.remove(deleteThisCity);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Выберите город")
                 .setItems(citiesWithoutCurrent.toArray(new String[0]), new DialogInterface.OnClickListener() {
                     @Override
@@ -162,7 +172,7 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
         builder.show();
     }
 
-    public void setTabOnLongClickListener() {
+    private void setTabOnLongClickListener() {
         LinearLayout tabStrip = (LinearLayout) tabLayout.getChildAt(0);
         tabStrip.getChildAt(0).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -172,5 +182,4 @@ public class ChatActivity extends AppCompatActivity implements TextView.OnEditor
             }
         });
     }
-
 }

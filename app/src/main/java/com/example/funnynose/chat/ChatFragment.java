@@ -18,9 +18,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ChatFragment extends Fragment {
 
     private static final String KEY_CHAT_NAME = "chat_name";
 
@@ -28,8 +27,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", locale);
 
     private RecyclerView mMessageList;
-    private SwipeRefreshLayout mSwipeRefreshLayout;
-
     private TextView mTextDate;
     private FloatingActionButton mButtonDown;
 
@@ -63,8 +60,6 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         super.onViewCreated(view, savedInstanceState);
 
         mMessageList = view.findViewById(R.id.chat_message_list);
-        mSwipeRefreshLayout = view.findViewById(R.id.chat_refresh);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         mMessageList.setLayoutManager(layoutManager);
@@ -95,6 +90,7 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
                 if (dy > 0) {
                     if (layoutManager.findLastVisibleItemPosition() < adapter.getItemCount() - 1) {
                         mButtonDown.show();
@@ -116,7 +112,11 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                     mTextDate.setVisibility(View.INVISIBLE);
                 }
 
-                super.onScrolled(recyclerView, dx, dy);
+                if (!chatUpdater.getIsLoading()) {
+                    if (layoutManager.findFirstVisibleItemPosition() < 15) {
+                        chatUpdater.refreshChat();
+                    }
+                }
             }
         });
     }
@@ -131,11 +131,5 @@ public class ChatFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     String getChatName() {
         return chatName;
-    }
-
-    @Override
-    public void onRefresh() {
-        chatUpdater.refreshChat();
-        mSwipeRefreshLayout.setRefreshing(false);
     }
 }

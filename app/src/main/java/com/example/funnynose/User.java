@@ -35,7 +35,7 @@ public class User {
 
     }
 
-    public static boolean tryConnectUser(Context context) {
+    static boolean tryConnectUser(Context context) {
 
         //TODO: дополнить
         if (SocketAPI.isOnline(context)) {
