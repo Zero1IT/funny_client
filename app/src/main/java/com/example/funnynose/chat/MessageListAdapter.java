@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 
 import com.example.funnynose.R;
 import com.example.funnynose.chat.holders.ReceivedMessageHolder;
-import com.example.funnynose.chat.holders.SentMessageHolder;
+import com.example.funnynose.chat.holders.MessageHolder;
 import com.example.funnynose.User;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         if (viewType == VIEW_TYPE_MESSAGE_SENT) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_sent, parent, false);
-            return new SentMessageHolder(view);
+            return new MessageHolder(view);
         } else {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_message_received, parent, false);
@@ -48,7 +48,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
-                ((SentMessageHolder) holder).bind(message);
+                ((MessageHolder) holder).bind(message);
                 break;
             case VIEW_TYPE_MESSAGE_RECEIVED:
                 ((ReceivedMessageHolder) holder).bind(message);

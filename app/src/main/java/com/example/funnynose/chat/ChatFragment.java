@@ -1,6 +1,8 @@
 package com.example.funnynose.chat;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +11,7 @@ import android.widget.TextView;
 import com.example.funnynose.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,12 +19,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import static com.example.funnynose.Utilities.dateFormat;
+
 public class ChatFragment extends Fragment {
 
     private static final String KEY_CHAT_NAME = "chat_name";
-
-    private static final Locale locale = new Locale("ru", "RU");
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", locale);
 
     private RecyclerView mMessageList;
     private TextView mTextDate;
@@ -61,7 +60,7 @@ public class ChatFragment extends Fragment {
 
         mMessageList = view.findViewById(R.id.chat_message_list);
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        WrapContentLinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(getContext());
         mMessageList.setLayoutManager(layoutManager);
         MessageListAdapter adapter = new MessageListAdapter(messageList);
         mMessageList.setAdapter(adapter);
@@ -131,5 +130,20 @@ public class ChatFragment extends Fragment {
 
     String getChatName() {
         return chatName;
+    }
+
+    class WrapContentLinearLayoutManager extends LinearLayoutManager {
+        WrapContentLinearLayoutManager(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            try {
+                super.onLayoutChildren(recycler, state);
+            } catch (IndexOutOfBoundsException e) {
+                Log.d("DEBUG", "IndexOutOfBoundsException RecyclerView");
+            }
+        }
     }
 }

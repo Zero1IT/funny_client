@@ -54,7 +54,7 @@
         app:backgroundTintMode="@color/colorPrimary"
         android:clickable="true"
         android:focusable="true"
-        android:src="@drawable/ic_menu_send"
+        app:srcCompat="@drawable/baseline_send_24"
         android:tint="@color/colorAccent"
         app:backgroundTint="@null"
         app:fabSize="mini"

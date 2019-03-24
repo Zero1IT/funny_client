@@ -48,6 +48,13 @@
             android:screenOrientation="userPortrait">
         </activity>
 
+        <activity
+            android:name=".users.UserActivity"
+            android:label="Пользователь"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="userPortrait">
+        </activity>
+
     </application>
 
 </manifest>

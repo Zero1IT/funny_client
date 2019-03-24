@@ -17,7 +17,6 @@ public class Database {
         if (database == null) {
             database = dbHelper.getWritableDatabase();
         }
-
     }
 
     public static SQLiteDatabase getDatabase() {

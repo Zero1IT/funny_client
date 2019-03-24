@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.example.funnynose.users.UsersFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final int EVENTS = 0;
     private static final int CHAT = 1;
+    private static final int USERS = 2;
 
     private Fragment mFragmentToOpen;
     private DrawerLayout mDrawerLayout;
@@ -36,7 +38,8 @@ public class MainActivity extends AppCompatActivity
     private MenuItem chatChangeCity;
 
     private Fragment[] mFragments = new Fragment[] {
-            EventPagerFragment.newInstance(), new DoubleChatFragment()
+            EventPagerFragment.newInstance(), new DoubleChatFragment(),
+            new UsersFragment()
     };
 
     @Override
@@ -104,7 +107,10 @@ public class MainActivity extends AppCompatActivity
             mToolbar.setTitle("Чат");
             mFragmentToOpen = mFragments[CHAT];
         } else if (id == R.id.nav_users) {
+            chatChangeCity.setVisible(false);
 
+            mToolbar.setTitle("Пользователи");
+            mFragmentToOpen = mFragments[USERS];
         } else if (id == R.id.nav_settings) {
 
         }

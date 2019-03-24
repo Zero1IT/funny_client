@@ -40,7 +40,7 @@ class ChatUpdater {
     private boolean isLoading;
 
     ChatUpdater(FragmentActivity activity, MessageListAdapter adapter,
-                       RecyclerView mMessageList, ArrayList<Message> messageArray, String chatName) {
+                RecyclerView mMessageList, ArrayList<Message> messageArray, String chatName) {
         this.activity = activity;
         this.adapter = adapter;
         this.mMessageList = mMessageList;
@@ -48,13 +48,13 @@ class ChatUpdater {
         this.chatName = chatName;
         chatCache = new ChatCache(chatName);
         isLoading = false;
+        initResponseRefreshMessages();
         initChat();
     }
 
     private void initChat() {
         if (messageArray.size() == 0) {
-            initResponseRefreshMessages();
-            if (SocketAPI.isOnline(activity)) {
+            if (SocketAPI.isOnline()) {
                 initResponseLastMessages();
 
                 JSONObject obj = new JSONObject();
@@ -76,7 +76,7 @@ class ChatUpdater {
                                 }
                                 responseLastMessages.setResponse(true);
                             }
-                    });
+                        });
                 responseLastMessages.start(activity);
 
             } else {
@@ -158,7 +158,7 @@ class ChatUpdater {
                         lastVisible = ((LinearLayoutManager) mMessageList.getLayoutManager())
                                 .findLastVisibleItemPosition();
                     }
-                    if (lastVisible + 10 > messageArray.size()) {
+                    if (lastVisible + 15 > messageArray.size()) {
                         mMessageList.smoothScrollToPosition(messageArray.size() - 1);
                     }
                 }
@@ -196,7 +196,6 @@ class ChatUpdater {
         if (isLoading) {
             return;
         }
-
 
         long lastMessageKey = getLastMessageKey();
         if (lastMessageKey == 1) {
@@ -308,6 +307,4 @@ class ChatUpdater {
             }
         });
     }
-
-
 }

@@ -11,12 +11,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import io.socket.client.IO;
+import io.socket.client.Manager;
 import io.socket.client.Socket;
 
 public class SocketAPI {
 
-    private final static String URL = "http://app.funnynose.by";
-    //private final static String URL = "http://192.168.0.105:3000";
+    //private final static String URL = "http://app.funnynose.by";
+    private final static String URL = "http://192.168.0.101:3000";
 
     public static ArrayList<String> cities = new ArrayList<String>() {{add("Гомель"); add("Минск"); add("Могилёв");
             add("Брест"); add("Витебск"); add("Гродно");}};
@@ -39,7 +40,6 @@ public class SocketAPI {
         } else if (!mSocket.connected()) {
             mSocket.connect();
         }
-
         return mSocket;
     }
 
@@ -57,4 +57,10 @@ public class SocketAPI {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    public static boolean isOnline() {
+        if (mSocket != null) {
+            return mSocket.connected();
+        }
+        return false;
+    }
 }
