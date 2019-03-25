@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/chat_tab_layout"
@@ -17,9 +17,9 @@
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/chat_view_pager"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@id/chat_tab_layout"
-        android:layout_above="@id/chat_input"
-        android:layout_height="match_parent" />
+        android:layout_above="@id/chat_input" />
 
     <EditText
         android:id="@+id/chat_input"

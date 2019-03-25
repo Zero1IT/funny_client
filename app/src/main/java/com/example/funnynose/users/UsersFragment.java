@@ -1,5 +1,6 @@
 package com.example.funnynose.users;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +23,9 @@ import java.util.Comparator;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -30,9 +33,19 @@ import io.socket.emitter.Emitter;
 
 public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    static final int SORT_BY_ABC = 0;
+    static final int SORT_BY_CITY = 1;
+    private static final int SORT_BY_PARTICIPATION_INCREASE = 2;
+    private static final int SORT_BY_PARTICIPATION_DECREASE = 3;
+    static final int SORT_BY_PARTICIPATION = 100;
+
+    private int currentSortType = SORT_BY_ABC;
+
     private RecyclerView mUserList;
     private UserListAdapter adapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    private FragmentActivity activity;
 
     private ArrayList<UserProfile> userList = new ArrayList<>();
 
@@ -52,11 +65,12 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        activity = getActivity();
 
         mUserList = view.findViewById(R.id.user_list);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
         mUserList.setLayoutManager(layoutManager);
-        adapter = new UserListAdapter(getActivity(), userList);
+        adapter = new UserListAdapter(activity, userList, this);
         mUserList.setAdapter(adapter);
 
         mSwipeRefreshLayout = view.findViewById(R.id.user_list_refresh);
@@ -110,7 +124,7 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                                 responseLastUsers.setResponse(true);
                             }
                         });
-                responseLastUsers.start(getActivity());
+                responseLastUsers.start(activity);
             }
         }
     }
@@ -137,13 +151,10 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             usersCache.addUser(user);
         }
 
-        Collections.sort(tempList, new Comparator<UserProfile>() {
-            public int compare(UserProfile o1, UserProfile o2) {
-                return o1.nickname.compareTo(o2.nickname);
-            }
-        });
+        sortUsers(SORT_BY_ABC, tempList);
 
-        userList = tempList; // баг возможен здесь
+        userList.clear();
+        userList.addAll(tempList);
         mUserList.post(new Runnable() {
             @Override
             public void run() {
@@ -155,5 +166,68 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onRefresh() {
         mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void sortUsers(int sortType, ArrayList<UserProfile> list) {
+        if (sortType == SORT_BY_ABC) {
+            Collections.sort(list, new Comparator<UserProfile>() {
+                public int compare(UserProfile o1, UserProfile o2) {
+                    return o1.nickname.compareTo(o2.nickname);
+                }
+            });
+            currentSortType = SORT_BY_ABC;
+        } else if (sortType == SORT_BY_CITY) {
+            Collections.sort(list, new Comparator<UserProfile>() {
+                public int compare(UserProfile o1, UserProfile o2) {
+                    return o1.city.compareTo(o2.city);
+                }
+            });
+            currentSortType = SORT_BY_CITY;
+        } else if (sortType == SORT_BY_PARTICIPATION_INCREASE) {
+            sortByParticipation(list, true);
+            currentSortType = SORT_BY_PARTICIPATION;
+        } else if (sortType == SORT_BY_PARTICIPATION_DECREASE) {
+            sortByParticipation(list, false);
+            currentSortType = SORT_BY_PARTICIPATION;
+        }
+    }
+
+    private void sortByParticipation(ArrayList<UserProfile> list, boolean increase) {
+        if (increase) {
+            Collections.sort(list, new Comparator<UserProfile>() {
+                public int compare(UserProfile o1, UserProfile o2) {
+                    return o1.lastParticipation.compareTo(o2.lastParticipation);
+                }
+            });
+        } else {
+            Collections.sort(list, new Comparator<UserProfile>() {
+                public int compare(UserProfile o1, UserProfile o2) {
+                    return o2.lastParticipation.compareTo(o1.lastParticipation);
+                }
+            });
+        }
+    }
+
+    public void openChooseSortTypeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Сортировать по")
+                .setItems(new String[]{"Алфавиту", "Городу", "Дате участия (возрастание)",
+                        "Дате участия (убывание)"}, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sortUsers(which, userList);
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                });
+        builder.show();
+    }
+
+    int getCurrentSortType() {
+        return currentSortType;
     }
 }

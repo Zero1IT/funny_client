@@ -87,6 +87,10 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
             cancel = true;
             mSurnameView.setError("Фамилия должна содержать не более 25 символов");
             v = mSurnameView;
+        } else if (surname.contains(" ")) {
+            cancel = true;
+            mSurnameView.setError("Фамилия не должна содержать пробелы");
+            v = mSurnameView;
         }
 
         if (name.length() < 2) {
@@ -96,6 +100,10 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
         } else if (name.length() > 25) {
             cancel = true;
             mNameView.setError("Имя должно содержать не более 25 символов");
+            v = mNameView;
+        }  else if (name.contains(" ")) {
+            cancel = true;
+            mNameView.setError("Имя не должно содержать пробелы");
             v = mNameView;
         }
 

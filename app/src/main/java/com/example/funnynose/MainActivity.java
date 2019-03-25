@@ -1,17 +1,21 @@
 package com.example.funnynose;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.funnynose.events.EventPagerFragment;
 import com.example.funnynose.chat.DoubleChatFragment;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.example.funnynose.users.UserActivity;
+import com.example.funnynose.users.UserProfile;
 import com.example.funnynose.users.UsersFragment;
 import com.google.android.material.navigation.NavigationView;
 
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private Toolbar mToolbar;
 
     private MenuItem chatChangeCity;
+    private MenuItem usersSortType;
 
     private Fragment[] mFragments = new Fragment[] {
             EventPagerFragment.newInstance(), new DoubleChatFragment(),
@@ -73,8 +78,37 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_activity_main, menu);
+
+        TextView nickname = findViewById(R.id.nickname);
+        TextView surnameAndName = findViewById(R.id.surname_and_name);
+        ImageView userImage = findViewById(R.id.user_image);
+
+        nickname.setText(User.stringData.get("nickname"));
+        String temp = User.stringData.get("surname") + " " + User.stringData.get("name");
+        surnameAndName.setText(temp);
+
+        findViewById(R.id.drawer_header).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Long id = User.numericData.get("id_");
+                Long lastParticipation = User.numericData.get("lastParticipation");
+                Long lastChangeDate = User.numericData.get("lastChangeDate");
+
+                if (id != null && lastParticipation != null && lastChangeDate != null) {
+                    Intent intent = UserActivity.newIntent(getApplicationContext(),
+                            new UserProfile(id, User.stringData.get("nickname"),
+                                    User.stringData.get("city"), lastParticipation,
+                                    lastChangeDate));
+                    startActivity(intent);
+                }
+            }
+        });
+
+
         chatChangeCity = menu.findItem(R.id.chat_change_city);
         chatChangeCity.setVisible(false);
+        usersSortType = menu.findItem(R.id.users_sort_type);
+        usersSortType.setVisible(false);
         return true;
     }
 
@@ -88,6 +122,12 @@ public class MainActivity extends AppCompatActivity
             }
             return true;
         }
+        else if (id == R.id.users_sort_type) {
+            if (mFragmentToOpen.getClass() == UsersFragment.class) {
+                ((UsersFragment) mFragmentToOpen).openChooseSortTypeDialog();
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -98,16 +138,19 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_events) {
             chatChangeCity.setVisible(false);
+            usersSortType.setVisible(false);
 
             mToolbar.setTitle("Мероприятия");
             mFragmentToOpen = mFragments[EVENTS];
         } else if (id == R.id.nav_chat) {
             chatChangeCity.setVisible(true);
+            usersSortType.setVisible(false);
 
             mToolbar.setTitle("Чат");
             mFragmentToOpen = mFragments[CHAT];
         } else if (id == R.id.nav_users) {
             chatChangeCity.setVisible(false);
+            usersSortType.setVisible(true);
 
             mToolbar.setTitle("Пользователи");
             mFragmentToOpen = mFragments[USERS];

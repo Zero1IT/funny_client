@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class ChatCache {
 
-    public static final int ONE_TIME_PACKAGE_SIZE = 20;
+    public static final int ONE_TIME_PACKAGE_SIZE = 40;
 
     private String chatName;
     private Cursor cursor;
@@ -21,13 +21,12 @@ public class ChatCache {
         this.chatName = chatName;
     }
 
-    public synchronized ArrayList<Message> getMessagesFromTo(long from, long to) {
+    public synchronized ArrayList<Message> getMessagesFromTo(long to) {
         cursor = Database.getDatabase().rawQuery("SELECT * FROM " +
                 (DatabaseHelper.TABLE_CHAT + chatName) +
-                " WHERE " + DatabaseHelper.KEY_ID + " > ? AND " +
-                DatabaseHelper.KEY_ID + " < ? " +
+                " WHERE " + DatabaseHelper.KEY_ID + " < ? " +
                  " ORDER BY " + DatabaseHelper.KEY_ID +
-                " DESC LIMIT ?", new String[] {String.valueOf(from), String.valueOf(to),
+                " DESC LIMIT ?", new String[] {String.valueOf(to),
                 String.valueOf(ONE_TIME_PACKAGE_SIZE)});
 
         int indexText = cursor.getColumnIndex(DatabaseHelper.KEY_MESSAGE_TEXT);
@@ -48,11 +47,7 @@ public class ChatCache {
         return list;
     }
 
-    public ArrayList<Message> getMessagesFromTo(long to) {
-        return getMessagesFromTo(0, to);
-    }
-
-    public ArrayList<Message> getMessagesFromTo() {
+    public synchronized ArrayList<Message> getMessagesFromTo() {
         return getMessagesFromTo((long) 1e6);
     }
 
@@ -65,9 +60,7 @@ public class ChatCache {
         indexKey = cursor.getColumnIndex(DatabaseHelper.KEY_ID);
 
         if (cursor.moveToFirst()) {
-            if (cursor.getPosition() > 0) {
-                return cursor.getLong(indexKey);
-            }
+            return cursor.getLong(indexKey);
         }
         return 0;
     }
@@ -77,7 +70,6 @@ public class ChatCache {
                 DatabaseHelper.KEY_ID + ", " + DatabaseHelper.KEY_MESSAGE_TEXT + ", " +
                 DatabaseHelper.KEY_MESSAGE_NICKNAME + ", " + DatabaseHelper.KEY_MESSAGE_TIME +
                 ") VALUES (?, ?, ?, ?)";
-
         SQLiteStatement sqLiteStatement = Database.getDatabase().compileStatement(sqlQuery);
         sqLiteStatement.bindLong(1, msg.key);
         sqLiteStatement.bindString(2, msg.text);

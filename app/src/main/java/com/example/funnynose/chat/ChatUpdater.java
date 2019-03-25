@@ -32,7 +32,6 @@ class ChatUpdater {
 
     private ChatCache chatCache;
 
-    private AsyncServerResponse responseLastMessages;
     private AsyncServerResponse responseRefreshMessages;
 
     private Object object;
@@ -54,8 +53,20 @@ class ChatUpdater {
 
     private void initChat() {
         if (messageArray.size() == 0) {
+            new Runnable(){
+                @Override
+                public void run() {
+                    messageArray.addAll(chatCache.getMessagesFromTo());
+                    notifyAllMessagesAndMoveDown();
+                }
+            }.run();
             if (SocketAPI.isOnline()) {
-                initResponseLastMessages();
+                final AsyncServerResponse responseLastMessages = new AsyncServerResponse(2000, new AsyncServerResponse.AsyncTask() {
+                    @Override
+                    public void call() {
+                        responseLastMessagesCall();
+                    }
+                });
 
                 JSONObject obj = new JSONObject();
                 try {
@@ -77,11 +88,8 @@ class ChatUpdater {
                                 responseLastMessages.setResponse(true);
                             }
                         });
-                responseLastMessages.start(activity);
 
-            } else {
-                messageArray.addAll(chatCache.getMessagesFromTo());
-                notifyAllMessagesAndMoveDown();
+                responseLastMessages.start(activity);
             }
 
             SocketAPI.getSocket().on("new_message_" + chatName, new Emitter.Listener() {
@@ -91,32 +99,6 @@ class ChatUpdater {
                 }
             });
         }
-    }
-
-    private void initResponseLastMessages() {
-
-        responseLastMessages = new AsyncServerResponse(2000, new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                responseLastMessagesCall();
-            }
-        });
-
-        responseLastMessages.setFailResponse(new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                messageArray.addAll(chatCache.getMessagesFromTo());
-                notifyAllMessagesAndMoveDown();
-            }
-        });
-
-        responseLastMessages.setFailSuccessful(new AsyncServerResponse.AsyncTask() {
-            @Override
-            public void call() {
-                messageArray.addAll(chatCache.getMessagesFromTo());
-                notifyAllMessagesAndMoveDown();
-            }
-        });
     }
 
     private void initResponseRefreshMessages() {
@@ -133,7 +115,6 @@ class ChatUpdater {
                     messageArray.add(0, msg);
                     chatCache.addMessage(msg);
                 }
-
                 notifyTopMessages(jsonArray.length());
             }
         });
@@ -170,27 +151,32 @@ class ChatUpdater {
     private void responseLastMessagesCall() {
         JSONArray jsonArray = (JSONArray) object;
         JSONObject msgJson;
+        ArrayList<Message> tempList = new ArrayList<>();
 
         for (int i = jsonArray.length() - 1; i >= 0; i--) {
             msgJson = jsonArray.optJSONObject(i);
             Message msg = new Message(msgJson.optString("messageText"), msgJson.optString("nickname"),
                     msgJson.optLong("messageTime"), msgJson.optLong("id_"));
-            messageArray.add(msg);
             chatCache.addMessage(msg);
-        }
 
-        if (jsonArray.length() < ChatCache.ONE_TIME_PACKAGE_SIZE) {
-            long to = messageArray.get(0).key;
-            long from = to - ChatCache.ONE_TIME_PACKAGE_SIZE;
-            if (from < 0) {
-                from = 0;
+            if (jsonArray.length() >= ChatCache.ONE_TIME_PACKAGE_SIZE) {
+                tempList.add(msg);
+            } else {
+                messageArray.add(msg);
+                mMessageList.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyItemInserted(messageArray.size() - 1);
+                    }
+                });
             }
-            messageArray.addAll(0, chatCache.getMessagesFromTo(from, to));
         }
-
-        notifyAllMessagesAndMoveDown();
+        if (jsonArray.length() >= ChatCache.ONE_TIME_PACKAGE_SIZE) {
+            messageArray.clear();
+            messageArray.addAll(tempList);
+            notifyAllMessagesAndMoveDown();
+        }
     }
-
 
     void refreshChat() {
         if (isLoading) {
@@ -235,11 +221,11 @@ class ChatUpdater {
     }
 
     private void notifyAllMessagesAndMoveDown() {
-        activity.runOnUiThread(new Runnable() {
+        mMessageList.post(new Runnable() {
             @Override
             public void run() {
                 adapter.notifyDataSetChanged();
-                mMessageList.scrollToPosition(messageArray.size() - 1);
+                mMessageList.scrollToPosition(messageArray.size() - 1); // перенести, чтобы не было исключения
             }
         });
     }

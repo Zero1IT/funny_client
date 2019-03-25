@@ -58,8 +58,8 @@ public class UsersCache {
         sqLiteStatement.bindLong(1, user.index);
         sqLiteStatement.bindString(2, user.nickname);
         sqLiteStatement.bindString(3, user.city);
-        sqLiteStatement.bindLong(4, user.lastParticipation);
-        sqLiteStatement.bindLong(5, user.lastChange);
+        sqLiteStatement.bindLong(4, user.lastParticipation.getTime());
+        sqLiteStatement.bindLong(5, user.lastChange.getTime());
         sqLiteStatement.execute();
     }
 }

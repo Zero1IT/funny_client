@@ -13,12 +13,21 @@ public class ReceivedMessageHolder extends MessageHolder {
 
     public ReceivedMessageHolder(View itemView) {
         super(itemView);
-        nameText = itemView.findViewById(R.id.text_message_name);
+        nameText = itemView.findViewById(R.id.message_name);
     }
 
     @Override
     public void bind(Message msg) {
         super.bind(msg);
         nameText.setText(msg.nickname);
+    }
+
+    public void hideName() {
+        nameText.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setTotalRoundedRectangle() {
+        messageText.setBackgroundResource(R.drawable.total_rounded_rectangle_received);
     }
 }

@@ -135,7 +135,19 @@ public class RegistrationActivity extends AppCompatActivity {
                     .once("registration", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
-                            mAsyncServerResponse.setSuccessful((boolean) args[0]);
+                            JSONObject jsonObject = (JSONObject) args[0];
+                            if (jsonObject.optBoolean("registration")) {
+                                mAsyncServerResponse.setSuccessful(true);
+                                try {
+                                    registrationUserData.put("id_", jsonObject.optLong("id_"));
+                                    registrationUserData.put("lastChangeDate",
+                                            jsonObject.optLong("lastChangeDate"));
+                                } catch (JSONException e) {
+                                    Log.d("DEBUG", e.getMessage());
+                                }
+                            } else {
+                                mAsyncServerResponse.setSuccessful(false);
+                            }
                             mAsyncServerResponse.setResponse(true);
                         }
                     });

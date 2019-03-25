@@ -4,17 +4,18 @@ import android.view.View;
 
 import com.example.funnynose.users.UserProfile;
 
+import androidx.annotation.NonNull;
 
-public class UserHolderWithLetter extends UserHolder {
+public class UserHolderWithCity extends UserHolder {
 
-    public UserHolderWithLetter(View itemView) {
+    public UserHolderWithCity(@NonNull View itemView) {
         super(itemView);
     }
 
     @Override
     public void bind(UserProfile user) {
         super.bind(user);
-        header.setText(user.nickname.substring(0, 1));
+        header.setText(user.city);
         header.setVisibility(View.VISIBLE);
     }
 }

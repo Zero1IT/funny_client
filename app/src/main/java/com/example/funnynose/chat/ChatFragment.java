@@ -25,11 +25,13 @@ public class ChatFragment extends Fragment {
 
     private static final String KEY_CHAT_NAME = "chat_name";
 
+    private LinearLayoutManager layoutManager;
     private RecyclerView mMessageList;
     private TextView mTextDate;
     private FloatingActionButton mButtonDown;
 
     private ArrayList<Message> messageList = new ArrayList<>();
+    private MessageListAdapter adapter;
 
     private String chatName;
     private ChatUpdater chatUpdater;
@@ -60,10 +62,12 @@ public class ChatFragment extends Fragment {
 
         mMessageList = view.findViewById(R.id.chat_message_list);
 
-        WrapContentLinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(getContext());
+        layoutManager = new WrapContentLinearLayoutManager(getContext());
+        layoutManager.setStackFromEnd(true);
         mMessageList.setLayoutManager(layoutManager);
-        MessageListAdapter adapter = new MessageListAdapter(messageList);
+        adapter = new MessageListAdapter(messageList, this);
         mMessageList.setAdapter(adapter);
+        addListenerToMessageList();
 
         mButtonDown = view.findViewById(R.id.chat_btn_down);
         mButtonDown.setVisibility(View.GONE);
@@ -77,47 +81,51 @@ public class ChatFragment extends Fragment {
         mTextDate = view.findViewById(R.id.chat_day_month);
 
         chatUpdater = new ChatUpdater(getActivity(), adapter, mMessageList, messageList, chatName);
-        addListenerToMessageList(layoutManager, adapter);
     }
 
-    private void addListenerToMessageList(final LinearLayoutManager layoutManager, final MessageListAdapter adapter) {
+    private void addListenerToMessageList() {
         mMessageList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    if (layoutManager.findLastVisibleItemPosition() < adapter.getItemCount() - 1) {
-                        mButtonDown.show();
-                    } else {
-                        mButtonDown.hide();
-                    }
-                } else {
-                    mButtonDown.hide();
-                }
-                if (dy < -3 || dy > 3) {
-                    if (layoutManager.findFirstCompletelyVisibleItemPosition() > 0) {
-                        mTextDate.setVisibility(View.VISIBLE);
-                        mTextDate.setText(dateFormat.format(messageList.get(layoutManager.
-                                findFirstCompletelyVisibleItemPosition()).time));
-                    }
-                }
-
-                if (layoutManager.findFirstVisibleItemPosition() == 0) {
-                    mTextDate.setVisibility(View.INVISIBLE);
-                }
-
-                if (!chatUpdater.getIsLoading()) {
-                    if (layoutManager.findFirstVisibleItemPosition() < 15) {
-                        chatUpdater.refreshChat();
-                    }
-                }
+                showButtonDown(dy);
             }
         });
+    }
+
+    void updateTextDate(int position) {
+        if (position > 2) {
+            mTextDate.setVisibility(View.VISIBLE);
+            try {
+                mTextDate.setText(dateFormat.format(messageList.get(layoutManager.
+                        findFirstVisibleItemPosition()).time));
+            } catch (IndexOutOfBoundsException e) {
+                Log.d("DEBUG", e.getMessage());
+            }
+
+        } else {
+            mTextDate.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    void refreshChat() {
+        if (!chatUpdater.getIsLoading()) {
+            if (layoutManager.findFirstVisibleItemPosition() < 25) {
+                chatUpdater.refreshChat();
+            }
+        }
+    }
+
+    private void showButtonDown(int dy) {
+        if (dy > 0) {
+            if (layoutManager.findLastVisibleItemPosition() < adapter.getItemCount() - 1) {
+                mButtonDown.show();
+            } else {
+                mButtonDown.hide();
+            }
+        } else {
+            mButtonDown.hide();
+        }
     }
 
     void addNewMessage(Message msg) {
@@ -142,7 +150,7 @@ public class ChatFragment extends Fragment {
             try {
                 super.onLayoutChildren(recycler, state);
             } catch (IndexOutOfBoundsException e) {
-                Log.d("DEBUG", "IndexOutOfBoundsException RecyclerView");
+                Log.d("DEBUG", "IndexOutOfBoundsException RecyclerView\t" + e.getMessage());
             }
         }
     }
