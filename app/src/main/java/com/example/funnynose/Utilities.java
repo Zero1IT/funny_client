@@ -9,9 +9,9 @@ import java.util.Locale;
 
 public class Utilities {
 
-    private static final Locale locale = new Locale("ru", "RU");
-    public static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", locale);
-    public static final SimpleDateFormat hoursMinutes = new SimpleDateFormat("HH:mm", locale);
+    private static final Locale LOCALE = new Locale("ru", "RU");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMMM yyyy", LOCALE);
+    public static final SimpleDateFormat HOURS_MINUTES = new SimpleDateFormat("HH:mm", LOCALE);
 
     public static void showSnackbar(View v, String str, boolean button) {
         if (v != null) {

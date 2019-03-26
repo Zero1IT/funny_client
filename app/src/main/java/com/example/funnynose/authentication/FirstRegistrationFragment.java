@@ -34,7 +34,7 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
 
     private AsyncServerResponse mAsyncServerResponse;
 
-    private String password, phone, email;
+    private String mPassword, mPhone, mEmail;
 
     @Nullable
     @Override
@@ -54,7 +54,7 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
                     @Override
                     public void run() {
                         mParent.nextFragment();
-                        mParent.putFirstFragmentData(email, phone, AuthenticationActivity.hashFunction(password));
+                        mParent.putFirstFragmentData(mEmail, mPhone, AuthenticationActivity.hashFunction(mPassword));
                     }
                 });
             }
@@ -103,50 +103,50 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
 
         String rPassword;
 
-        password = mPasswordView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
         rPassword = mRepeatPasswordView.getText().toString();
-        phone = mPhoneView.getText().toString().replace(" ", "").replace("-", "");
-        email = mEmailView.getText().toString().trim();
+        mPhone = mPhoneView.getText().toString().replace(" ", "").replace("-", "");
+        mEmail = mEmailView.getText().toString().trim();
 
 
-        if (!rPassword.equals(password)) {
+        if (!rPassword.equals(mPassword)) {
             cancel = true;
             mRepeatPasswordView.setError("Пароли не совпадают");
             v = mRepeatPasswordView;
         }
 
-        if (password.length() < 6) {
+        if (mPassword.length() < 6) {
             cancel = true;
             mPasswordView.setError("Пароль должен содержать не менее 6 символов");
             v = mPasswordView;
 
-        } else if (password.length() > 25) {
+        } else if (mPassword.length() > 25) {
             cancel = true;
             mPasswordView.setError("Пароль должен содержать не более 25 символов");
             v = mPasswordView;
-        } else if (password.contains(" ")) {
+        } else if (mPassword.contains(" ")) {
             cancel = true;
             mPasswordView.setError("Пароль не должен содержать пробелы");
             v = mPasswordView;
         }
 
-        if (!phone.matches("[+]375\\d{9}")) {
+        if (!mPhone.matches("[+]375\\d{9}")) {
             cancel = true;
             mPhoneView.setError("Номер телефона неправильный. Правильно: +375 XX XXX-XX-XX");
             v = mPhoneView;
         }
 
-        if (!email.contains("@") || !email.contains(".")) {
+        if (!mEmail.contains("@") || !mEmail.contains(".")) {
             cancel = true;
             mEmailView.setError("Неправильный Email");
             v = mEmailView;
         }
 
-        if (email.length() < 6) {
+        if (mEmail.length() < 6) {
             cancel = true;
             mEmailView.setError("Email должен содержать не менее 6 символов");
             v = mEmailView;
-        } else if (email.length() > 25) {
+        } else if (mEmail.length() > 25) {
             cancel = true;
             mEmailView.setError("Email должен содержать не более 25 символов");
             v = mEmailView;
@@ -157,7 +157,7 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
         } else {
             mParent.showProgress(true);
             changeButtonState();
-            checkEmailPhone(email, phone);
+            checkEmailPhone(mEmail, mPhone);
             mAsyncServerResponse.start(getContext());
         }
     }
@@ -165,8 +165,8 @@ public class FirstRegistrationFragment extends CommonRegistrationFragment {
     private void checkEmailPhone(final String email, final String phone) {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("email", email);
-            obj.put("phone", phone);
+            obj.put("mEmail", email);
+            obj.put("mPhone", phone);
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }

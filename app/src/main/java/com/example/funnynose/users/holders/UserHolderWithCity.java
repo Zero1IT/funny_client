@@ -15,7 +15,7 @@ public class UserHolderWithCity extends UserHolder {
     @Override
     public void bind(UserProfile user) {
         super.bind(user);
-        header.setText(user.city);
-        header.setVisibility(View.VISIBLE);
+        mHeaderView.setText(user.city);
+        mHeaderView.setVisibility(View.VISIBLE);
     }
 }

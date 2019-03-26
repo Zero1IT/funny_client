@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.example.funnynose.Utilities.dateFormat;
+import static com.example.funnynose.Utilities.DATE_FORMAT;
 import static com.example.funnynose.users.UsersFragment.SORT_BY_ABC;
 import static com.example.funnynose.users.UsersFragment.SORT_BY_CITY;
 import static com.example.funnynose.users.UsersFragment.SORT_BY_PARTICIPATION;
@@ -29,20 +29,20 @@ public class UserListAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_USER_WITH_CITY = 2;
     private static final int VIEW_TYPE_USER_WITH_PARTICIPATION = 3;
 
-    private UsersFragment fragment;
+    private UsersFragment mUsersFragment;
 
-    private ArrayList<UserProfile> userList;
+    private ArrayList<UserProfile> mUserList;
     //public static boolean[] checkImage;
 
     private FragmentActivity activity;
 
     UserListAdapter(FragmentActivity activity, ArrayList<UserProfile> userList, UsersFragment fragment) {
         this.activity = activity;
-        this.userList = userList;
-        this.fragment = fragment;
+        mUserList = userList;
+        mUsersFragment = fragment;
 
         //if (checkImage == null) {
-        //    checkImage = new boolean[userList.size()];
+        //    checkImage = new boolean[mUserList.size()];
         //}
     }
 
@@ -69,7 +69,7 @@ public class UserListAdapter extends RecyclerView.Adapter {
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    Intent intent = UserActivity.newIntent(activity, userList.get(position));
+                    Intent intent = UserActivity.newIntent(activity, mUserList.get(position));
                     activity.startActivity(intent);
                 }
             }
@@ -80,7 +80,7 @@ public class UserListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        UserProfile otherUser = userList.get(position);
+        UserProfile otherUser = mUserList.get(position);
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_USER:
@@ -133,28 +133,28 @@ public class UserListAdapter extends RecyclerView.Adapter {
                 break;
         }
 
-        if (fragment.getCurrentSortType() == SORT_BY_CITY) {
+        if (mUsersFragment.getCurrentSortType() == SORT_BY_CITY) {
             ((UserHolder) holder).hideCity();
-        } else if (fragment.getCurrentSortType() == SORT_BY_PARTICIPATION) {
+        } else if (mUsersFragment.getCurrentSortType() == SORT_BY_PARTICIPATION) {
             ((UserHolder) holder).hideParticipation();
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (fragment.getCurrentSortType() == SORT_BY_ABC) {
-            if (position == 0 || !userList.get(position).nickname.substring(0, 1)
-                    .equals(userList.get(position - 1).nickname.substring(0, 1))) {
+        if (mUsersFragment.getCurrentSortType() == SORT_BY_ABC) {
+            if (position == 0 || !mUserList.get(position).nickname.substring(0, 1)
+                    .equals(mUserList.get(position - 1).nickname.substring(0, 1))) {
                 return VIEW_TYPE_USER_WITH_LETTER;
             }
-        } else if (fragment.getCurrentSortType() == SORT_BY_CITY) {
-            if (position == 0 || !userList.get(position).city
-                    .equals(userList.get(position - 1).city)) {
+        } else if (mUsersFragment.getCurrentSortType() == SORT_BY_CITY) {
+            if (position == 0 || !mUserList.get(position).city
+                    .equals(mUserList.get(position - 1).city)) {
                 return VIEW_TYPE_USER_WITH_CITY;
             }
-        } else if (fragment.getCurrentSortType() == SORT_BY_PARTICIPATION) {
-            if (position == 0 || !dateFormat.format(userList.get(position).lastParticipation)
-                    .equals(dateFormat.format(userList.get(position - 1).lastParticipation))) {
+        } else if (mUsersFragment.getCurrentSortType() == SORT_BY_PARTICIPATION) {
+            if (position == 0 || !DATE_FORMAT.format(mUserList.get(position).lastParticipation)
+                    .equals(DATE_FORMAT.format(mUserList.get(position - 1).lastParticipation))) {
                 return VIEW_TYPE_USER_WITH_PARTICIPATION;
             }
         }
@@ -163,11 +163,11 @@ public class UserListAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return userList.size();
+        return mUserList.size();
     }
     /*
     public void resetCheckImage(boolean bool) {
-        checkImage = new boolean[userList.size()];
+        checkImage = new boolean[mUserList.size()];
         Arrays.fill(checkImage, bool);
     }
     */

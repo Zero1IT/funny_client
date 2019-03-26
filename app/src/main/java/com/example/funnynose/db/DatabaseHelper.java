@@ -35,7 +35,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        for (String chatName : SocketAPI.chatNames) {
+        for (String chatName : SocketAPI.sChatNames) {
             db.execSQL("CREATE TABLE " + (TABLE_CHAT + chatName) + " (" + KEY_ID
                     + " INTEGER PRIMARY KEY," + KEY_MESSAGE_TEXT + " TEXT, "
                     + KEY_MESSAGE_NICKNAME + " TEXT, " + KEY_MESSAGE_TIME + " INTEGER)");
@@ -58,7 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper implements BaseColumns {
     }
 
     private void resetTables(SQLiteDatabase db) {
-        for (String chatName : SocketAPI.chatNames) {
+        for (String chatName : SocketAPI.sChatNames) {
             db.execSQL("DROP TABLE IF EXISTS " + (TABLE_CHAT + chatName));
         }
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);

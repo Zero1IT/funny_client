@@ -6,7 +6,7 @@ import com.example.funnynose.users.UserProfile;
 
 import androidx.annotation.NonNull;
 
-import static com.example.funnynose.Utilities.dateFormat;
+import static com.example.funnynose.Utilities.DATE_FORMAT;
 
 public class UserHolderWithParticipation extends UserHolder {
 
@@ -17,7 +17,7 @@ public class UserHolderWithParticipation extends UserHolder {
     @Override
     public void bind(UserProfile user) {
         super.bind(user);
-        header.setText(dateFormat.format(user.lastParticipation));
-        header.setVisibility(View.VISIBLE);
+        mHeaderView.setText(DATE_FORMAT.format(user.lastParticipation));
+        mHeaderView.setVisibility(View.VISIBLE);
     }
 }

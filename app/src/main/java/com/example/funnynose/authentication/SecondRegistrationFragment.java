@@ -27,7 +27,7 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
 
     private AsyncServerResponse mAsyncServerResponse;
 
-    private String nickname, name, surname;
+    private String mNickname, mName, mSurname;
 
     @Nullable
     @Override
@@ -48,7 +48,7 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
                     @Override
                     public void run() {
                         mParent.nextFragment();
-                        mParent.putSecondFragmentData(nickname, name, surname);
+                        mParent.putSecondFragmentData(mNickname, mName, mSurname);
                     }
                 });
             }
@@ -75,43 +75,43 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
         boolean cancel = false;
         View v = new View(mContext);
 
-        nickname = mNicknameView.getText().toString().trim();
-        name = mNameView.getText().toString().trim();
-        surname = mSurnameView.getText().toString().trim();
+        mNickname = mNicknameView.getText().toString().trim();
+        mName = mNameView.getText().toString().trim();
+        mSurname = mSurnameView.getText().toString().trim();
 
-        if (surname.length() < 2) {
+        if (mSurname.length() < 2) {
             cancel = true;
             mSurnameView.setError("Фамилия должна содержать не менее 2 символов");
             v = mSurnameView;
-        } else if (surname.length() > 25) {
+        } else if (mSurname.length() > 25) {
             cancel = true;
             mSurnameView.setError("Фамилия должна содержать не более 25 символов");
             v = mSurnameView;
-        } else if (surname.contains(" ")) {
+        } else if (mSurname.contains(" ")) {
             cancel = true;
             mSurnameView.setError("Фамилия не должна содержать пробелы");
             v = mSurnameView;
         }
 
-        if (name.length() < 2) {
+        if (mName.length() < 2) {
             cancel = true;
             mNameView.setError("Имя должно содержать не менее 2 символов");
             v = mNameView;
-        } else if (name.length() > 25) {
+        } else if (mName.length() > 25) {
             cancel = true;
             mNameView.setError("Имя должно содержать не более 25 символов");
             v = mNameView;
-        }  else if (name.contains(" ")) {
+        }  else if (mName.contains(" ")) {
             cancel = true;
             mNameView.setError("Имя не должно содержать пробелы");
             v = mNameView;
         }
 
-        if (nickname.length() < 2) {
+        if (mNickname.length() < 2) {
             cancel = true;
             mNicknameView.setError("Псевдоним должен содержать не менее 2 символов");
             v = mNicknameView;
-        } else if (nickname.length() > 25) {
+        } else if (mNickname.length() > 25) {
             cancel = true;
             mNicknameView.setError("Псевдоним должен содержать не более 25 символов");
             v = mNicknameView;
@@ -122,7 +122,7 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
         } else {
             mParent.showProgress(true);
             changeButtonState();
-            checkNickname(nickname);
+            checkNickname(mNickname);
             mAsyncServerResponse.start(getContext());
         }
     }
@@ -130,7 +130,7 @@ public class SecondRegistrationFragment extends CommonRegistrationFragment {
     private void checkNickname(final String nickname) {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("nickname", nickname);
+            obj.put("mNickname", nickname);
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }

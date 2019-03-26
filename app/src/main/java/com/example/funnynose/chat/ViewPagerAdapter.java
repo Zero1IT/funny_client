@@ -1,6 +1,5 @@
 package com.example.funnynose.chat;
 
-
 import android.os.Parcelable;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
-
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
@@ -68,7 +66,4 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
         addFragment(fragment, title);
         notifyDataSetChanged();
     }
-
-
-
 }

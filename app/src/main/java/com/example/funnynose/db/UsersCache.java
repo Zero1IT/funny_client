@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 public class UsersCache {
 
-    private static final String getUsersSqlQuery = "SELECT * FROM " +
+    private static final String GET_USERS_SQL_QUERY = "SELECT * FROM " +
             DatabaseHelper.TABLE_USERS +
             " ORDER BY " + DatabaseHelper.KEY_USER_NICKNAME;
 
-    private static final String getLastMessageKeySqlQuery = "SELECT " + DatabaseHelper.KEY_ID +
+    private static final String GET_LAST_MESSAGE_KEY_SQL_QUERY = "SELECT " + DatabaseHelper.KEY_ID +
             " FROM " + DatabaseHelper.TABLE_USERS +
             " WHERE " + DatabaseHelper.KEY_ID + " = (SELECT MAX(" +
             DatabaseHelper.KEY_ID + ") FROM " + DatabaseHelper.TABLE_USERS + ")";
@@ -23,32 +23,32 @@ public class UsersCache {
             DatabaseHelper.KEY_USER_CITY + ", " + DatabaseHelper.KEY_USER_LAST_PARTICIPATION +
             ", " + DatabaseHelper.KEY_USER_LAST_CHANGE + ") VALUES (?, ?, ?, ?, ?)";
 
-    private Cursor cursor;
+    private Cursor mCursor;
 
     public synchronized ArrayList<UserProfile> getUsers() {
-        cursor = Database.getDatabase().rawQuery(getUsersSqlQuery, null);
+        mCursor = Database.getDatabase().rawQuery(GET_USERS_SQL_QUERY, null);
 
-        int indexKey = cursor.getColumnIndex(DatabaseHelper.KEY_ID);
-        int indexNickname = cursor.getColumnIndex(DatabaseHelper.KEY_USER_NICKNAME);
-        int indexCity = cursor.getColumnIndex(DatabaseHelper.KEY_USER_CITY);
-        int indexLastPatricipation = cursor.getColumnIndex(DatabaseHelper.KEY_USER_LAST_PARTICIPATION);
-        int indexLastChange = cursor.getColumnIndex(DatabaseHelper.KEY_USER_LAST_CHANGE);
+        int indexKey = mCursor.getColumnIndex(DatabaseHelper.KEY_ID);
+        int indexNickname = mCursor.getColumnIndex(DatabaseHelper.KEY_USER_NICKNAME);
+        int indexCity = mCursor.getColumnIndex(DatabaseHelper.KEY_USER_CITY);
+        int indexLastPatricipation = mCursor.getColumnIndex(DatabaseHelper.KEY_USER_LAST_PARTICIPATION);
+        int indexLastChange = mCursor.getColumnIndex(DatabaseHelper.KEY_USER_LAST_CHANGE);
 
         ArrayList<UserProfile> list = new ArrayList<>();
-        if (cursor.moveToFirst()) {
+        if (mCursor.moveToFirst()) {
             do {
-                list.add(new UserProfile(cursor.getLong(indexKey), cursor.getString(indexNickname), cursor.getString(indexCity),
-                        cursor.getLong(indexLastPatricipation), cursor.getLong(indexLastChange)));
-            } while (cursor.moveToNext());
+                list.add(new UserProfile(mCursor.getLong(indexKey), mCursor.getString(indexNickname), mCursor.getString(indexCity),
+                        mCursor.getLong(indexLastPatricipation), mCursor.getLong(indexLastChange)));
+            } while (mCursor.moveToNext());
         }
         return list;
     }
 
     public synchronized long getLastUserKey() {
-        cursor = Database.getDatabase().rawQuery(getLastMessageKeySqlQuery, null);
-        int indexKey = cursor.getColumnIndex(DatabaseHelper.KEY_ID);
-        if (cursor.moveToFirst()) {
-            return cursor.getLong(indexKey);
+        mCursor = Database.getDatabase().rawQuery(GET_LAST_MESSAGE_KEY_SQL_QUERY, null);
+        int indexKey = mCursor.getColumnIndex(DatabaseHelper.KEY_ID);
+        if (mCursor.moveToFirst()) {
+            return mCursor.getLong(indexKey);
         }
         return 0;
     }

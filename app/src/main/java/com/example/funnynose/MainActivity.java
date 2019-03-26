@@ -39,8 +39,8 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout mDrawerLayout;
     private Toolbar mToolbar;
 
-    private MenuItem chatChangeCity;
-    private MenuItem usersSortType;
+    private MenuItem mChatChangeCity;
+    private MenuItem mUsersSortType;
 
     private Fragment[] mFragments = new Fragment[] {
             EventPagerFragment.newInstance(), new DoubleChatFragment(),
@@ -83,21 +83,21 @@ public class MainActivity extends AppCompatActivity
         TextView surnameAndName = findViewById(R.id.surname_and_name);
         ImageView userImage = findViewById(R.id.user_image);
 
-        nickname.setText(User.stringData.get("nickname"));
-        String temp = User.stringData.get("surname") + " " + User.stringData.get("name");
+        nickname.setText(User.mStringData.get("nickname"));
+        String temp = User.mStringData.get("surname") + " " + User.mStringData.get("name");
         surnameAndName.setText(temp);
 
         findViewById(R.id.drawer_header).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Long id = User.numericData.get("id_");
-                Long lastParticipation = User.numericData.get("lastParticipation");
-                Long lastChangeDate = User.numericData.get("lastChangeDate");
+                Long id = User.mNumericData.get("id_");
+                Long lastParticipation = User.mNumericData.get("lastParticipation");
+                Long lastChangeDate = User.mNumericData.get("lastChangeDate");
 
                 if (id != null && lastParticipation != null && lastChangeDate != null) {
                     Intent intent = UserActivity.newIntent(getApplicationContext(),
-                            new UserProfile(id, User.stringData.get("nickname"),
-                                    User.stringData.get("city"), lastParticipation,
+                            new UserProfile(id, User.mStringData.get("nickname"),
+                                    User.mStringData.get("city"), lastParticipation,
                                     lastChangeDate));
                     startActivity(intent);
                 }
@@ -105,10 +105,10 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        chatChangeCity = menu.findItem(R.id.chat_change_city);
-        chatChangeCity.setVisible(false);
-        usersSortType = menu.findItem(R.id.users_sort_type);
-        usersSortType.setVisible(false);
+        mChatChangeCity = menu.findItem(R.id.chat_change_city);
+        mChatChangeCity.setVisible(false);
+        mUsersSortType = menu.findItem(R.id.users_sort_type);
+        mUsersSortType.setVisible(false);
         return true;
     }
 
@@ -137,20 +137,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_events) {
-            chatChangeCity.setVisible(false);
-            usersSortType.setVisible(false);
+            mChatChangeCity.setVisible(false);
+            mUsersSortType.setVisible(false);
 
             mToolbar.setTitle("Мероприятия");
             mFragmentToOpen = mFragments[EVENTS];
         } else if (id == R.id.nav_chat) {
-            chatChangeCity.setVisible(true);
-            usersSortType.setVisible(false);
+            mChatChangeCity.setVisible(true);
+            mUsersSortType.setVisible(false);
 
             mToolbar.setTitle("Чат");
             mFragmentToOpen = mFragments[CHAT];
         } else if (id == R.id.nav_users) {
-            chatChangeCity.setVisible(false);
-            usersSortType.setVisible(true);
+            mChatChangeCity.setVisible(false);
+            mUsersSortType.setVisible(true);
 
             mToolbar.setTitle("Пользователи");
             mFragmentToOpen = mFragments[USERS];

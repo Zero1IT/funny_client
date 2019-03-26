@@ -23,14 +23,14 @@ import androidx.annotation.Nullable;
 
 public class ThirdRegistrationFragment extends CommonRegistrationFragment {
 
-    private TextView mBirthDate;
-    private TextView mFirstParticipationDate;
+    private TextView mBirthdayDateView;
+    private TextView mFirstParticipationDateView;
 
-    private Calendar dateAndTime = Calendar.getInstance();
-    private Date birthdayDate;
-    private Date firstParticipationDate;
+    private Calendar mDateAndTime = Calendar.getInstance();
+    private Date mBirthdayDate;
+    private Date mFirstParticipationDate;
 
-    private String city;
+    private String mCity;
 
     @Nullable
     @Override
@@ -47,23 +47,23 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
         
         if (mContext != null) {
             ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
-                    mContext, android.R.layout.simple_spinner_dropdown_item, SocketAPI.cities);
+                    mContext, android.R.layout.simple_spinner_dropdown_item, SocketAPI.sCities);
             mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
         }
 
-        city = SocketAPI.cities.get(0);
+        mCity = SocketAPI.sCities.get(0);
 
         mChooseCitySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent,
                                        View itemSelected, int selectedItemPosition, long selectedId) {
-                city = SocketAPI.cities.get(selectedItemPosition);
+                mCity = SocketAPI.sCities.get(selectedItemPosition);
             }
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
 
-        mBirthDate = view.findViewById(R.id.birth_date);
-        mFirstParticipationDate = view.findViewById(R.id.first_participation_date);
+        mBirthdayDateView = view.findViewById(R.id.birth_date);
+        mFirstParticipationDateView = view.findViewById(R.id.first_participation_date);
 
 
         Button mBtnBirthDate = view.findViewById(R.id.btn_change_birth_date);
@@ -96,7 +96,7 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
 
     private void completeRegistration() {
         if (mParent != null) {
-            mParent.putThirdFragmentData(city, birthdayDate, firstParticipationDate);
+            mParent.putThirdFragmentData(mCity, mBirthdayDate, mFirstParticipationDate);
             mParent.nextFragment();
         }
     }
@@ -104,9 +104,9 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
     private void setBirthDate() {
         if (mContext != null) {
             new DatePickerDialog(mContext, birthDateListener,
-                    dateAndTime.get(Calendar.YEAR),
-                    dateAndTime.get(Calendar.MONTH),
-                    dateAndTime.get(Calendar.DAY_OF_MONTH))
+                    mDateAndTime.get(Calendar.YEAR),
+                    mDateAndTime.get(Calendar.MONTH),
+                    mDateAndTime.get(Calendar.DAY_OF_MONTH))
                     .show();
         }
     }
@@ -114,24 +114,24 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
     private void setFirstParticipationDate() {
         if (mContext != null) {
             new DatePickerDialog(mContext, firstParticipationDateListener,
-                    dateAndTime.get(Calendar.YEAR),
-                    dateAndTime.get(Calendar.MONTH),
-                    dateAndTime.get(Calendar.DAY_OF_MONTH))
+                    mDateAndTime.get(Calendar.YEAR),
+                    mDateAndTime.get(Calendar.MONTH),
+                    mDateAndTime.get(Calendar.DAY_OF_MONTH))
                     .show();
         }
     }
 
     private void setInitialBirthDate() {
-        birthdayDate = dateAndTime.getTime();
-        mBirthDate.setText(DateUtils.formatDateTime(mContext,
-                dateAndTime.getTimeInMillis(),
+        mBirthdayDate = mDateAndTime.getTime();
+        mBirthdayDateView.setText(DateUtils.formatDateTime(mContext,
+                mDateAndTime.getTimeInMillis(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
 
     private void setInitialFirstParticipationDate() {
-        firstParticipationDate = dateAndTime.getTime();
-        mFirstParticipationDate.setText(DateUtils.formatDateTime(mContext,
-                dateAndTime.getTimeInMillis(),
+        mFirstParticipationDate = mDateAndTime.getTime();
+        mFirstParticipationDateView.setText(DateUtils.formatDateTime(mContext,
+                mDateAndTime.getTimeInMillis(),
                 DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_YEAR));
     }
 
@@ -139,9 +139,9 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
             new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
-            dateAndTime.set(Calendar.YEAR, year);
-            dateAndTime.set(Calendar.MONTH, month);
-            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            mDateAndTime.set(Calendar.YEAR, year);
+            mDateAndTime.set(Calendar.MONTH, month);
+            mDateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             setInitialBirthDate();
         }
     };
@@ -150,9 +150,9 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
             new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(android.widget.DatePicker view, int year, int month, int dayOfMonth) {
-            dateAndTime.set(Calendar.YEAR, year);
-            dateAndTime.set(Calendar.MONTH, month);
-            dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            mDateAndTime.set(Calendar.YEAR, year);
+            mDateAndTime.set(Calendar.MONTH, month);
+            mDateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             setInitialFirstParticipationDate();
         }
     };

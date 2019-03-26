@@ -19,22 +19,22 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.example.funnynose.Utilities.dateFormat;
+import static com.example.funnynose.Utilities.DATE_FORMAT;
 
 public class ChatFragment extends Fragment {
 
     private static final String KEY_CHAT_NAME = "chat_name";
 
-    private LinearLayoutManager layoutManager;
-    private RecyclerView mMessageList;
-    private TextView mTextDate;
-    private FloatingActionButton mButtonDown;
+    private LinearLayoutManager mLayoutManager;
+    private RecyclerView mRecyclerView;
+    private TextView mDateView;
+    private FloatingActionButton mDownButton;
 
-    private ArrayList<Message> messageList = new ArrayList<>();
-    private MessageListAdapter adapter;
+    private ArrayList<Message> mMessageList = new ArrayList<>();
+    private MessageListAdapter mMessageListAdapter;
 
-    private String chatName;
-    private ChatUpdater chatUpdater;
+    private String mChatName;
+    private ChatUpdater mChatUpdater;
 
     static Fragment newInstance(String chatName) {
         Fragment fragment = new ChatFragment();
@@ -51,7 +51,7 @@ public class ChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         if (bundle != null) {
-            chatName = bundle.getString(KEY_CHAT_NAME);
+            mChatName = bundle.getString(KEY_CHAT_NAME);
         }
         return inflater.inflate(R.layout.chat_fragment, container, false);
     }
@@ -60,84 +60,73 @@ public class ChatFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mMessageList = view.findViewById(R.id.chat_message_list);
+        mRecyclerView = view.findViewById(R.id.chat_message_list);
 
-        layoutManager = new WrapContentLinearLayoutManager(getContext());
-        layoutManager.setStackFromEnd(true);
-        mMessageList.setLayoutManager(layoutManager);
-        adapter = new MessageListAdapter(messageList, this);
-        mMessageList.setAdapter(adapter);
-        addListenerToMessageList();
+        mLayoutManager = new WrapContentLinearLayoutManager(getContext());
+        mLayoutManager.setStackFromEnd(true);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setHasFixedSize(true);
+        mMessageListAdapter = new MessageListAdapter(mMessageList, this);
+        mRecyclerView.setAdapter(mMessageListAdapter);
 
-        mButtonDown = view.findViewById(R.id.chat_btn_down);
-        mButtonDown.setVisibility(View.GONE);
-        mButtonDown.setOnClickListener(new View.OnClickListener() {
+        mDownButton = view.findViewById(R.id.chat_btn_down);
+        mDownButton.setVisibility(View.GONE);
+        mDownButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                     moveDown();
             }
         });
 
-        mTextDate = view.findViewById(R.id.chat_day_month);
+        mDateView = view.findViewById(R.id.chat_day_month);
 
-        chatUpdater = new ChatUpdater(getActivity(), adapter, mMessageList, messageList, chatName);
-    }
-
-    private void addListenerToMessageList() {
-        mMessageList.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                showButtonDown(dy);
-            }
-        });
+        mChatUpdater = new ChatUpdater(getActivity(), mMessageListAdapter, mRecyclerView, mMessageList, mChatName);
     }
 
     void updateTextDate(int position) {
         if (position > 2) {
-            mTextDate.setVisibility(View.VISIBLE);
+            mDateView.setVisibility(View.VISIBLE);
             try {
-                mTextDate.setText(dateFormat.format(messageList.get(layoutManager.
+                mDateView.setText(DATE_FORMAT.format(mMessageList.get(mLayoutManager.
                         findFirstVisibleItemPosition()).time));
             } catch (IndexOutOfBoundsException e) {
                 Log.d("DEBUG", e.getMessage());
             }
-
         } else {
-            mTextDate.setVisibility(View.INVISIBLE);
+            mDateView.setVisibility(View.INVISIBLE);
         }
     }
 
     void refreshChat() {
-        if (!chatUpdater.getIsLoading()) {
-            if (layoutManager.findFirstVisibleItemPosition() < 25) {
-                chatUpdater.refreshChat();
+        if (!mChatUpdater.getIsLoading()) {
+            if (mLayoutManager.findFirstVisibleItemPosition() < 35) {
+                mChatUpdater.refreshChat();
             }
         }
     }
 
-    private void showButtonDown(int dy) {
-        if (dy > 0) {
-            if (layoutManager.findLastVisibleItemPosition() < adapter.getItemCount() - 1) {
-                mButtonDown.show();
+    void showButtonDown(int position) {
+        if (position != -1) {
+            if (position < mMessageListAdapter.getItemCount() - 1) {
+                mDownButton.show();
             } else {
-                mButtonDown.hide();
+                mDownButton.hide();
             }
         } else {
-            mButtonDown.hide();
+            mDownButton.hide();
         }
     }
 
     void addNewMessage(Message msg) {
-        chatUpdater.addNewMessage(msg);
+        mChatUpdater.addNewMessage(msg);
     }
 
     void moveDown() {
-        mMessageList.scrollToPosition(messageList.size() - 1);
+        mRecyclerView.scrollToPosition(mMessageList.size() - 1);
     }
 
     String getChatName() {
-        return chatName;
+        return mChatName;
     }
 
     class WrapContentLinearLayoutManager extends LinearLayoutManager {

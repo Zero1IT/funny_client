@@ -3,7 +3,6 @@ package com.example.funnynose.chat;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,7 @@ import com.example.funnynose.db.ChatCache;
 
 import java.util.ArrayList;
 
-import static com.example.funnynose.Utilities.dateFormat;
+import static com.example.funnynose.Utilities.DATE_FORMAT;
 
 
 public class MessageListAdapter extends RecyclerView.Adapter {
@@ -30,14 +29,14 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_MESSAGE_RECEIVED_NO_NAME = 4;
     private static final int VIEW_TYPE_MESSAGE_SENT_NOT_FIRST = 5;
 
-    private int lastItemPosition = -1;
+    private int mLastItemPosition = -1;
 
-    private ArrayList<Message> messageList;
-    private ChatFragment fragment;
+    private ArrayList<Message> mMessageList;
+    private ChatFragment mChatFragment;
 
     MessageListAdapter(ArrayList<Message> messageList, ChatFragment fragment) {
-        this.messageList = messageList;
-        this.fragment = fragment;
+        mMessageList = messageList;
+        mChatFragment = fragment;
     }
 
     @NonNull
@@ -55,11 +54,11 @@ public class MessageListAdapter extends RecyclerView.Adapter {
             return new ReceivedMessageHolder(view);
         } else if (viewType == VIEW_TYPE_MESSAGE_SENT_WITH_DIVIDER) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_sent_with_divider, parent, false);
+                    .inflate(R.layout.item_message_sent, parent, false);
             return new MessageHolderWithDivider(view);
         } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED_WITH_DIVIDER) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_received_with_divider, parent, false);
+                    .inflate(R.layout.item_message_received, parent, false);
             return new ReceivedMessageHolderWithDivider(view);
         } else if (viewType == VIEW_TYPE_MESSAGE_RECEIVED_NO_NAME) {
             view = LayoutInflater.from(parent.getContext())
@@ -74,13 +73,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Message message = messageList.get(position);
-
-        if (position < lastItemPosition) { // скролл вверх
-            fragment.refreshChat();
-        }
-
-        fragment.updateTextDate(position);
+        Message message = mMessageList.get(position);
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
@@ -105,22 +98,35 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                 ((MessageHolder) holder).setTotalRoundedRectangle();
                 break;
         }
-        lastItemPosition = position;
+
+        if (position < mLastItemPosition) { // скролл вверх
+            mChatFragment.refreshChat();
+            mChatFragment.showButtonDown(-1);
+        } else {
+            if (position - mLastItemPosition < ChatCache.ONE_TIME_PACKAGE_SIZE - 10) {
+                mChatFragment.showButtonDown(position);
+            } else {
+                mChatFragment.showButtonDown(-1);
+            }
+        }
+        mChatFragment.updateTextDate(position);
+
+        mLastItemPosition = position;
     }
 
     @Override
     public int getItemViewType(int position) {
-        Message message = messageList.get(position);
+        Message message = mMessageList.get(position);
         Message previousMessage = null;
         if (position > 0) {
-            previousMessage = messageList.get(position - 1);
+            previousMessage = mMessageList.get(position - 1);
         }
 
-        if (message.nickname.equals(User.stringData.get("nickname"))) {
+        if (message.nickname.equals(User.mStringData.get("nickname"))) {
             if (position == 0) {
                 return VIEW_TYPE_MESSAGE_SENT_WITH_DIVIDER;
-            } else if (!dateFormat.format(message.time)
-                    .equals(dateFormat.format(previousMessage.time))) {
+            } else if (!DATE_FORMAT.format(message.time)
+                    .equals(DATE_FORMAT.format(previousMessage.time))) {
                 return VIEW_TYPE_MESSAGE_SENT_WITH_DIVIDER;
             } else if (message.nickname.equals(previousMessage.nickname)) {
                 return VIEW_TYPE_MESSAGE_SENT_NOT_FIRST;
@@ -130,8 +136,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         } else {
             if (position == 0) {
                 return VIEW_TYPE_MESSAGE_RECEIVED_WITH_DIVIDER;
-            } else if (!dateFormat.format(message.time)
-                    .equals(dateFormat.format(previousMessage.time))) {
+            } else if (!DATE_FORMAT.format(message.time)
+                    .equals(DATE_FORMAT.format(previousMessage.time))) {
                 return VIEW_TYPE_MESSAGE_RECEIVED_WITH_DIVIDER;
             } else {
                 if (!message.nickname.equals(previousMessage.nickname)) {
@@ -145,6 +151,6 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return messageList.size();
+        return mMessageList.size();
     }
 }

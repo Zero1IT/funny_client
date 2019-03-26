@@ -10,44 +10,44 @@ import com.example.funnynose.users.UserProfile;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.example.funnynose.Utilities.dateFormat;
+import static com.example.funnynose.Utilities.DATE_FORMAT;
 
 public class UserHolder extends RecyclerView.ViewHolder {
 
-    TextView header;
-    private TextView name;
-    private TextView city;
-    private TextView lastParticipation;
-    private TextView textParticipation;
-    private ImageView avatarka;
+    TextView mHeaderView;
+    private TextView mNameView;
+    private TextView mCityView;
+    private TextView mLastParticipationView;
+    private TextView mTextParticipationView;
+    private ImageView mAvatarka;
 
     public UserHolder(@NonNull View itemView) {
         super(itemView);
-        header = itemView.findViewById(R.id.header);
-        name = itemView.findViewById(R.id.name);
-        city = itemView.findViewById(R.id.city);
-        lastParticipation = itemView.findViewById(R.id.last_participation);
-        textParticipation = itemView.findViewById(R.id.text_participation);
-        avatarka = itemView.findViewById(R.id.avatarka);
+        mHeaderView = itemView.findViewById(R.id.header);
+        mNameView = itemView.findViewById(R.id.name);
+        mCityView = itemView.findViewById(R.id.city);
+        mLastParticipationView = itemView.findViewById(R.id.last_participation);
+        mTextParticipationView = itemView.findViewById(R.id.text_participation);
+        mAvatarka = itemView.findViewById(R.id.avatarka);
     }
 
     public void bind(UserProfile user) {
-        name.setText(user.nickname);
-        city.setText(user.city);
-        lastParticipation.setText(dateFormat.format(user.lastParticipation));
+        mNameView.setText(user.nickname);
+        mCityView.setText(user.city);
+        mLastParticipationView.setText(DATE_FORMAT.format(user.lastParticipation));
 
-        header.setVisibility(View.GONE);
-        city.setVisibility(View.VISIBLE);
-        lastParticipation.setVisibility(View.VISIBLE);
-        textParticipation.setVisibility(View.VISIBLE);
+        mHeaderView.setVisibility(View.GONE);
+        mCityView.setVisibility(View.VISIBLE);
+        mLastParticipationView.setVisibility(View.VISIBLE);
+        mTextParticipationView.setVisibility(View.VISIBLE);
     }
 
     public void hideCity() {
-        city.setVisibility(View.GONE);
+        mCityView.setVisibility(View.GONE);
     }
 
     public void hideParticipation() {
-        lastParticipation.setVisibility(View.GONE);
-        textParticipation.setVisibility(View.GONE);
+        mLastParticipationView.setVisibility(View.GONE);
+        mTextParticipationView.setVisibility(View.GONE);
     }
 }

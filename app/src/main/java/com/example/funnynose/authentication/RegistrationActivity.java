@@ -37,12 +37,12 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private FragmentManager mFragmentManager;
     private Fragment[] mFragments;
-    private int fragmentIndex;
+    private int mFragmentIndex;
 
     private ActionBar mActionBar;
     private ProgressBar mProgressView;
 
-    private JSONObject registrationUserData;
+    private JSONObject mRegistrationUserData;
 
     private AsyncServerResponse mAsyncServerResponse;
 
@@ -58,7 +58,7 @@ public class RegistrationActivity extends AppCompatActivity {
         mActionBar = getSupportActionBar();
         mProgressView = findViewById(R.id.progress);
 
-        registrationUserData = new JSONObject();
+        mRegistrationUserData = new JSONObject();
 
         initFragments();
         initAsyncServerResponse();
@@ -73,7 +73,7 @@ public class RegistrationActivity extends AppCompatActivity {
         Fragment fragment = mFragmentManager.findFragmentById(R.id.registration_frame);
         if (fragment == null) {
             mFragmentManager.beginTransaction().add(R.id.registration_frame, mFragments[0]).commit();
-            fragmentIndex = 0;
+            mFragmentIndex = 0;
         }
     }
 
@@ -84,7 +84,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 showProgress(false);
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
-                User.userDataFromJson(registrationUserData);
+                User.userDataFromJson(mRegistrationUserData);
                 User.setUserAppData(getApplicationContext());
                 finish();
             }
@@ -108,11 +108,11 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void nextFragment(){
-        if (fragmentIndex < 2) {
-            fragmentIndex++;
+        if (mFragmentIndex < 2) {
+            mFragmentIndex++;
             mFragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .replace(R.id.registration_frame, mFragments[fragmentIndex]).commit();
-            if (fragmentIndex > 0) {
+                    .replace(R.id.registration_frame, mFragments[mFragmentIndex]).commit();
+            if (mFragmentIndex > 0) {
                 if (mActionBar != null) {
                     mActionBar.setHomeButtonEnabled(true);
                     mActionBar.setDisplayHomeAsUpEnabled(true);
@@ -122,16 +122,16 @@ public class RegistrationActivity extends AppCompatActivity {
             showProgress(true);
 
             try {
-                registrationUserData.put("status", "");
-                registrationUserData.put("permission", Permission.LOSER);
-                registrationUserData.put("hospitalsPerYear", 0);
-                registrationUserData.put("trainingsPerYear", 0);
-                registrationUserData.put("othersPerYear", 0);
+                mRegistrationUserData.put("status", "");
+                mRegistrationUserData.put("permission", Permission.LOSER);
+                mRegistrationUserData.put("hospitalsPerYear", 0);
+                mRegistrationUserData.put("trainingsPerYear", 0);
+                mRegistrationUserData.put("othersPerYear", 0);
             } catch (JSONException e) {
                 Log.d("DEBUG", e.getMessage());
             }
 
-            SocketAPI.getSocket().emit("registration", registrationUserData)
+            SocketAPI.getSocket().emit("registration", mRegistrationUserData)
                     .once("registration", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
@@ -139,8 +139,8 @@ public class RegistrationActivity extends AppCompatActivity {
                             if (jsonObject.optBoolean("registration")) {
                                 mAsyncServerResponse.setSuccessful(true);
                                 try {
-                                    registrationUserData.put("id_", jsonObject.optLong("id_"));
-                                    registrationUserData.put("lastChangeDate",
+                                    mRegistrationUserData.put("id_", jsonObject.optLong("id_"));
+                                    mRegistrationUserData.put("lastChangeDate",
                                             jsonObject.optLong("lastChangeDate"));
                                 } catch (JSONException e) {
                                     Log.d("DEBUG", e.getMessage());
@@ -156,11 +156,11 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     public void previousFragment(){
-        if (fragmentIndex > 0) {
-            fragmentIndex--;
+        if (mFragmentIndex > 0) {
+            mFragmentIndex--;
             mFragmentManager.beginTransaction().setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                    .replace(R.id.registration_frame, mFragments[fragmentIndex]).commit();
-            if (fragmentIndex == 0) {
+                    .replace(R.id.registration_frame, mFragments[mFragmentIndex]).commit();
+            if (mFragmentIndex == 0) {
                 if (mActionBar != null) {
                     mActionBar.setHomeButtonEnabled(false);
                     mActionBar.setDisplayHomeAsUpEnabled(false);
@@ -173,9 +173,9 @@ public class RegistrationActivity extends AppCompatActivity {
 
     public void putFirstFragmentData(String email, String phone, String password) {
         try {
-            registrationUserData.put("email", email);
-            registrationUserData.put("phone", phone);
-            registrationUserData.put("password", password);
+            mRegistrationUserData.put("email", email);
+            mRegistrationUserData.put("phone", phone);
+            mRegistrationUserData.put("password", password);
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }
@@ -183,9 +183,9 @@ public class RegistrationActivity extends AppCompatActivity {
 
     public void putSecondFragmentData(String nickname, String name, String surname) {
         try {
-            registrationUserData.put("nickname", nickname);
-            registrationUserData.put("name", name);
-            registrationUserData.put("surname", surname);
+            mRegistrationUserData.put("nickname", nickname);
+            mRegistrationUserData.put("name", name);
+            mRegistrationUserData.put("surname", surname);
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }
@@ -193,10 +193,10 @@ public class RegistrationActivity extends AppCompatActivity {
 
     public void putThirdFragmentData(String city, Date birthdayDate, Date firstParticipationDate) {
         try {
-            registrationUserData.put("city", city);
-            registrationUserData.put("birthday", birthdayDate.getTime());
-            registrationUserData.put("firstParticipation", firstParticipationDate.getTime());
-            registrationUserData.put("lastParticipation", firstParticipationDate.getTime());
+            mRegistrationUserData.put("city", city);
+            mRegistrationUserData.put("birthday", birthdayDate.getTime());
+            mRegistrationUserData.put("firstParticipation", firstParticipationDate.getTime());
+            mRegistrationUserData.put("lastParticipation", firstParticipationDate.getTime());
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }

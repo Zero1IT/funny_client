@@ -11,44 +11,43 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 import io.socket.client.IO;
-import io.socket.client.Manager;
 import io.socket.client.Socket;
 
 public class SocketAPI {
 
     //private final static String URL = "http://app.funnynose.by";
-    private final static String URL = "http://192.168.0.101:3000";
+    private final static String URL = "http://192.168.0.103:3000";
 
-    public static ArrayList<String> cities = new ArrayList<String>() {{add("Гомель"); add("Минск"); add("Могилёв");
+    public static ArrayList<String> sCities = new ArrayList<String>() {{add("Гомель"); add("Минск"); add("Могилёв");
             add("Брест"); add("Витебск"); add("Гродно");}};
 
-    public static String[] chatNames = new String[]{"common", "gomel", "minsk",
+    public static String[] sChatNames = new String[]{"common", "gomel", "minsk",
             "mogilev", "brest", "vitebsk", "grodno"};
 
-    private static Socket mSocket;
+    private static Socket sSocket;
 
     private SocketAPI() {}
 
     public static Socket getSocket() {
-        if (mSocket == null) {
+        if (sSocket == null) {
             try {
-                mSocket = IO.socket(URL);
-                mSocket.connect();
+                sSocket = IO.socket(URL);
+                sSocket.connect();
             } catch (URISyntaxException e) {
                 Log.d(Session.TAG, e.getMessage());
             }
-        } else if (!mSocket.connected()) {
-            mSocket.connect();
+        } else if (!sSocket.connected()) {
+            sSocket.connect();
         }
-        return mSocket;
+        return sSocket;
     }
 
     public static void closeSocket() {
-        if (mSocket == null) {
+        if (sSocket == null) {
             return;
         }
-        mSocket.disconnect();
-        mSocket = null;
+        sSocket.disconnect();
+        sSocket = null;
     }
 
     public static boolean isOnline(Context context) {
@@ -58,8 +57,8 @@ public class SocketAPI {
     }
 
     public static boolean isOnline() {
-        if (mSocket != null) {
-            return mSocket.connected();
+        if (sSocket != null) {
+            return sSocket.connected();
         }
         return false;
     }

@@ -8,25 +8,35 @@ import com.example.funnynose.chat.Message;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import static com.example.funnynose.Utilities.hoursMinutes;
+import static com.example.funnynose.Utilities.HOURS_MINUTES;
 
 public class MessageHolder extends RecyclerView.ViewHolder {
 
-    TextView messageText;
-    private TextView timeText;
+    private TextView mDividerView;
+    TextView mTextView;
+    private TextView mTimeView;
 
     public MessageHolder(View itemView) {
         super(itemView);
-        messageText = itemView.findViewById(R.id.message_text);
-        timeText = itemView.findViewById(R.id.message_time);
+        mDividerView = itemView.findViewById(R.id.message_divider);
+        mTextView = itemView.findViewById(R.id.message_text);
+        mTimeView = itemView.findViewById(R.id.message_time);
     }
 
     public void bind(Message msg) {
-        messageText.setText(msg.text);
-        timeText.setText(hoursMinutes.format(msg.time));
+        mDividerView.setVisibility(View.GONE);
+        mTextView.setText(msg.text);
+        mTimeView.setText(HOURS_MINUTES.format(msg.time));
+    }
+
+    void setDividerText(String text) {
+        if (text != null) {
+            mDividerView.setText(text);
+            mDividerView.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setTotalRoundedRectangle() {
-        messageText.setBackgroundResource(R.drawable.total_rounded_rectangle_sent);
+        mTextView.setBackgroundResource(R.drawable.total_rounded_rectangle_sent);
     }
 }

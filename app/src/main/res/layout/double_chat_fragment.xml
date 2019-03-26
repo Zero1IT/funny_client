@@ -14,12 +14,21 @@
         app:tabGravity="fill"
         app:tabMode="fixed" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/chat_view_pager"
+    
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/layout_for_snack_bar"
         android:layout_below="@id/chat_tab_layout"
-        android:layout_above="@id/chat_input" />
+        android:layout_above="@id/chat_input">
+        
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/chat_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <EditText
         android:id="@+id/chat_input"

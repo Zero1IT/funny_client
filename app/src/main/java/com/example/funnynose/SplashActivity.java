@@ -73,8 +73,8 @@ public class SplashActivity extends AppCompatActivity {
     private void sendAuthorizationDataToServer() {
         JSONObject obj = new JSONObject();
         try {
-            obj.put("phone", User.stringData.get("phone"));
-            obj.put("password", User.stringData.get("password"));
+            obj.put("phone", User.mStringData.get("phone"));
+            obj.put("password", User.mStringData.get("password"));
         } catch (JSONException e) {
             Log.d("DEBUG", e.getMessage());
         }

@@ -14,7 +14,7 @@ public class UserHolderWithLetter extends UserHolder {
     @Override
     public void bind(UserProfile user) {
         super.bind(user);
-        header.setText(user.nickname.substring(0, 1));
-        header.setVisibility(View.VISIBLE);
+        mHeaderView.setText(user.nickname.substring(0, 1));
+        mHeaderView.setVisibility(View.VISIBLE);
     }
 }

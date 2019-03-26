@@ -39,22 +39,22 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private static final int SORT_BY_PARTICIPATION_DECREASE = 3;
     static final int SORT_BY_PARTICIPATION = 100;
 
-    private int currentSortType = SORT_BY_ABC;
+    private int mCurrentSortType = SORT_BY_ABC;
 
-    private RecyclerView mUserList;
-    private UserListAdapter adapter;
+    private RecyclerView mRecyclerView;
+    private UserListAdapter mUserListAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private FragmentActivity activity;
+    private FragmentActivity mFragmentActivity;
 
-    private ArrayList<UserProfile> userList = new ArrayList<>();
+    private ArrayList<UserProfile> mUserList = new ArrayList<>();
 
-    private Object object;
+    private Object mObject;
 
-    private UsersCache usersCache;
+    private UsersCache mUsersCache;
 
-    private AsyncServerResponse responseLastUsers;
-    private AsyncServerResponse responseRefreshUsers;
+    private AsyncServerResponse mResponseLastUsers;
+    private AsyncServerResponse mResponseRefreshUsers;
 
     @Nullable
     @Override
@@ -65,39 +65,39 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        activity = getActivity();
+        mFragmentActivity = getActivity();
 
-        mUserList = view.findViewById(R.id.user_list);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(activity);
-        mUserList.setLayoutManager(layoutManager);
-        adapter = new UserListAdapter(activity, userList, this);
-        mUserList.setAdapter(adapter);
+        mRecyclerView = view.findViewById(R.id.user_list);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mFragmentActivity);
+        mRecyclerView.setLayoutManager(layoutManager);
+        mUserListAdapter = new UserListAdapter(mFragmentActivity, mUserList, this);
+        mRecyclerView.setAdapter(mUserListAdapter);
 
         mSwipeRefreshLayout = view.findViewById(R.id.user_list_refresh);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setColorSchemeColors(Color.RED, Color.GREEN, Color.BLUE);
 
-        mUserList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
 
-        usersCache = new UsersCache();
+        mUsersCache = new UsersCache();
         initUsers();
     }
 
     private void initUsers() {
-        if (userList.size() == 0) {
+        if (mUserList.size() == 0) {
             new Runnable() {
                 @Override
                 public void run() {
-                    userList.addAll(usersCache.getUsers());
-                    mUserList.post(new Runnable() {
+                    mUserList.addAll(mUsersCache.getUsers());
+                    mRecyclerView.post(new Runnable() {
                         @Override
                         public void run() {
-                            adapter.notifyDataSetChanged();
+                            mUserListAdapter.notifyDataSetChanged();
                         }
                     });
                 }
@@ -106,7 +106,7 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 initResponseLastUsers();
                 JSONObject obj = new JSONObject();
                 try {
-                    obj.put("id_", usersCache.getLastUserKey());
+                    obj.put("id_", mUsersCache.getLastUserKey());
                 } catch (JSONException e) {
                     Log.d("DEBUG", e.getMessage());
                 }
@@ -115,22 +115,22 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                         .once("compare_last_users", new Emitter.Listener() {
                             @Override
                             public void call(Object... args) {
-                                object = args[0];
-                                if (((JSONArray) object).length() == 0) {
-                                    responseLastUsers.setSuccessful(false);
+                                mObject = args[0];
+                                if (((JSONArray) mObject).length() == 0) {
+                                    mResponseLastUsers.setSuccessful(false);
                                 } else {
-                                    responseLastUsers.setSuccessful(true);
+                                    mResponseLastUsers.setSuccessful(true);
                                 }
-                                responseLastUsers.setResponse(true);
+                                mResponseLastUsers.setResponse(true);
                             }
                         });
-                responseLastUsers.start(activity);
+                mResponseLastUsers.start(mFragmentActivity);
             }
         }
     }
 
     private void initResponseLastUsers() {
-        responseLastUsers = new AsyncServerResponse(new AsyncServerResponse.AsyncTask() {
+        mResponseLastUsers = new AsyncServerResponse(new AsyncServerResponse.AsyncTask() {
             @Override
             public void call() {
                 responseLastUsersCall();
@@ -139,26 +139,26 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     private void responseLastUsersCall() {
-        JSONArray jsonArray = (JSONArray) object;
+        JSONArray jsonArray = (JSONArray) mObject;
         JSONObject userJson;
-        final ArrayList<UserProfile> tempList = new ArrayList<>(userList);
+        final ArrayList<UserProfile> tempList = new ArrayList<>(mUserList);
         for (int i = jsonArray.length() - 1; i >= 0; i--) {
             userJson = jsonArray.optJSONObject(i);
             UserProfile user = new UserProfile(userJson.optLong("id_"),
                     userJson.optString("nickname"), userJson.optString("cityName"),
                     userJson.optLong("lastParticipation"), userJson.optLong("lastChangeDate"));
             tempList.add(user);
-            usersCache.addUser(user);
+            mUsersCache.addUser(user);
         }
 
         sortUsers(SORT_BY_ABC, tempList);
 
-        userList.clear();
-        userList.addAll(tempList);
-        mUserList.post(new Runnable() {
+        mUserList.clear();
+        mUserList.addAll(tempList);
+        mRecyclerView.post(new Runnable() {
             @Override
             public void run() {
-                adapter.notifyDataSetChanged();
+                mUserListAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -175,20 +175,20 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                     return o1.nickname.compareTo(o2.nickname);
                 }
             });
-            currentSortType = SORT_BY_ABC;
+            mCurrentSortType = SORT_BY_ABC;
         } else if (sortType == SORT_BY_CITY) {
             Collections.sort(list, new Comparator<UserProfile>() {
                 public int compare(UserProfile o1, UserProfile o2) {
                     return o1.city.compareTo(o2.city);
                 }
             });
-            currentSortType = SORT_BY_CITY;
+            mCurrentSortType = SORT_BY_CITY;
         } else if (sortType == SORT_BY_PARTICIPATION_INCREASE) {
             sortByParticipation(list, true);
-            currentSortType = SORT_BY_PARTICIPATION;
+            mCurrentSortType = SORT_BY_PARTICIPATION;
         } else if (sortType == SORT_BY_PARTICIPATION_DECREASE) {
             sortByParticipation(list, false);
-            currentSortType = SORT_BY_PARTICIPATION;
+            mCurrentSortType = SORT_BY_PARTICIPATION;
         }
     }
 
@@ -209,17 +209,17 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     public void openChooseSortTypeDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(mFragmentActivity);
         builder.setTitle("Сортировать по")
                 .setItems(new String[]{"Алфавиту", "Городу", "Дате участия (возрастание)",
                         "Дате участия (убывание)"}, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sortUsers(which, userList);
-                        activity.runOnUiThread(new Runnable() {
+                        sortUsers(which, mUserList);
+                        mFragmentActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.notifyDataSetChanged();
+                                mUserListAdapter.notifyDataSetChanged();
                             }
                         });
                     }
@@ -228,6 +228,6 @@ public class UsersFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     }
 
     int getCurrentSortType() {
-        return currentSortType;
+        return mCurrentSortType;
     }
 }
