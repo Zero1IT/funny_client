@@ -1,19 +1,27 @@
 package com.example.funnynose.events;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 
 import com.example.funnynose.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Observable;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public class EventAnotherFragment extends EventFragment {
 
-    private int mDataCount;
-    private int mDataCountMax = 1000; // TODO: check in db later
+    private static final String LAYOUT_NAME = "Другое";
+    private static final String SERVER_LISTENER = "another_event_listen";
+
+    private int mDataCountMax; // TODO: check in db later
 
     public static EventAnotherFragment newInstance() {
 
@@ -26,23 +34,40 @@ public class EventAnotherFragment extends EventFragment {
 
     public EventAnotherFragment() {
         super(R.layout.event_item_another, EventsData.getInstance().getEventsAnother());
+        mDataCountMax = 1000;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        FloatingActionButton button = view.findViewById(R.id.create_event);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(getView(), "Another", Snackbar.LENGTH_SHORT).show();
-            }
-        });
     }
 
     @Override
-    protected int getDataCount() {
-        return mDataCount;
+    protected void loadMoreData() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                List<Event> list = new ArrayList<>();
+                for (int i = mEvents.size(); i < mEvents.size() + 50; i++) {
+                    Event e = new Event();
+                    e.setId(i);
+                    e.setIcon(Event.ICON_ANOTHER);
+                    e.setTitle("Another-event test server load");
+                    e.setDate(new Date());
+                    e.setFinished(i % 2 == 0);
+                    list.add(e);
+                }
+
+                if (isLoadedNewEvent()) {
+                    mAdapter.addData(0, mNewAddedEvents);
+                    mLoadedNewEvent = false;
+                    mNewAddedEvents.clear();
+                }
+                mAdapter.addData(list);
+                mLoadingMore = false;
+                mAdapter.loadMoreComplete();
+            }
+        }, 3000);
     }
 
     @Override
@@ -51,7 +76,12 @@ public class EventAnotherFragment extends EventFragment {
     }
 
     @Override
-    protected void setDataCount(int count) {
-        mDataCount = count;
+    public String getNameLayout() {
+        return LAYOUT_NAME;
+    }
+
+    @Override
+    public String getServerListenerName() {
+        return SERVER_LISTENER;
     }
 }

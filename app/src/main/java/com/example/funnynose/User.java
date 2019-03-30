@@ -31,19 +31,10 @@ public class User {
         return ourInstance;
     }
 
-    private User() {
-
-    }
+    private User() { }
 
     static boolean tryConnectUser(Context context) {
-
         //TODO: дополнить
-        if (SocketAPI.isOnline(context)) {
-            SocketAPI.getSocket().emit("event_check", "Release later"); //TODO: идентифицировать вошедшего юзера
-        } else {
-            return false;
-        }
-
         return true;
     }
 

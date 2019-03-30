@@ -6,7 +6,6 @@ import android.os.Bundle;
 import com.example.funnynose.events.EventPagerFragment;
 import com.example.funnynose.chat.DoubleChatFragment;
 
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
