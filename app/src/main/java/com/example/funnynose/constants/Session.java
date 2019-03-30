@@ -1,34 +1,32 @@
 package com.example.funnynose.constants;
 
 
-
-// сейчас не используется даже, потому что все части которые в Messenger'е мы скинули сюда, теперь наоборот выносим и разделяем
 public class Session {
 
     public static final String TAG = "DEBUG";
 
-    private static Session mSession;
+    private static Session sSession;
 
     private Session() {}
 
     public static Session currentSession() {
-        if (mSession == null) {
+        if (sSession == null) {
             throw new NullPointerException("Session doesn't init");
         }
-        return mSession;
+        return sSession;
     }
 
     public static void initSession() {
-        if (mSession != null) {
+        if (sSession != null) {
             return;
         }
-        mSession = new Session();
+        sSession = new Session();
     }
 
     public static void closeSession() {
-        if (mSession == null) {
+        if (sSession == null) {
             return;
         }
-        mSession = null;
+        sSession = null;
     }
 }

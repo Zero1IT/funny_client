@@ -3,7 +3,12 @@
     xmlns:yourapp="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/chat_change_city"
-        android:title="@android:string/search_go"
+        android:title="@string/other_city"
         android:icon="@drawable/baseline_location_city_24"
-        yourapp:showAsAction="always|collapseActionView" />
+        yourapp:showAsAction="ifRoom|collapseActionView" />
+    <item
+        android:id="@+id/users_sort_type"
+        android:title="@string/sort_type"
+        android:icon="@drawable/baseline_sort_24"
+        yourapp:showAsAction="ifRoom|collapseActionView" />
 </menu>

@@ -5,27 +5,26 @@ import android.database.sqlite.SQLiteDatabase;
 
 public class Database {
 
-    private static DatabaseHelper dbHelper;
-    private static SQLiteDatabase database;
+    private static DatabaseHelper sDbHelper;
+    private static SQLiteDatabase sSqLiteDatabase;
 
     private Database() {}
 
     public static void initDatabase(Context context) {
-        if (dbHelper == null) {
-            dbHelper = new DatabaseHelper(context);
+        if (sDbHelper == null) {
+            sDbHelper = new DatabaseHelper(context);
         }
-        if (database == null) {
-            database = dbHelper.getWritableDatabase();
+        if (sSqLiteDatabase == null) {
+            sSqLiteDatabase = sDbHelper.getWritableDatabase();
         }
-
     }
 
-    public static SQLiteDatabase getDatabase() {
-        return database;
+    static SQLiteDatabase getDatabase() {
+        return sSqLiteDatabase;
     }
 
     public static DatabaseHelper getHelper() {
-        return dbHelper;
+        return sDbHelper;
     }
 
 

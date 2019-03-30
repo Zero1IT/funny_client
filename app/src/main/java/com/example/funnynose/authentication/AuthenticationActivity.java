@@ -27,7 +27,6 @@ import java.security.NoSuchAlgorithmException;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import io.socket.emitter.Emitter;
 
@@ -37,9 +36,7 @@ public class AuthenticationActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private ProgressBar mProgressView;
 
-    ActionBar mActionBar;
-
-    private JSONObject jsonResponse;
+    private JSONObject mJsonResponse;
 
     private AsyncServerResponse mAsyncServerResponse;
 
@@ -53,7 +50,7 @@ public class AuthenticationActivity extends AppCompatActivity {
             setSupportActionBar(mToolbar);
             mToolbar.setTitle("Регистрация");
         }
-        mActionBar = getSupportActionBar();
+
         mProgressView = findViewById(R.id.progress);
 
         mPhoneView = findViewById(R.id.phone);
@@ -89,7 +86,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 showProgress(false);
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
-                User.userDataFromJson(jsonResponse);
+                User.userDataFromJson(mJsonResponse);
                 User.setUserAppData(getApplicationContext());
                 finish();
             }
@@ -130,8 +127,8 @@ public class AuthenticationActivity extends AppCompatActivity {
                     .once("authentication", new Emitter.Listener() {
                         @Override
                         public void call(Object... args) {
-                            jsonResponse = (JSONObject) args[0];
-                            mAsyncServerResponse.setSuccessful((boolean) jsonResponse.remove("auth"));
+                            mJsonResponse = (JSONObject) args[0];
+                            mAsyncServerResponse.setSuccessful((boolean) mJsonResponse.remove("auth"));
                             mAsyncServerResponse.setResponse(true);
                         }
                     });

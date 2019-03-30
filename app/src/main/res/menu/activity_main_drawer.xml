@@ -9,16 +9,16 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_events"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Мероприятия" />
+            android:icon="@drawable/baseline_event_note_24"
+            android:title="@string/menu_events" />
         <item
             android:id="@+id/nav_chat"
             android:icon="@drawable/baseline_chat_24"
-            android:title="Чат" />
+            android:title="@string/menu_chat" />
         <item
             android:id="@+id/nav_users"
             android:icon="@drawable/baseline_group_24"
-            android:title="Пользователи" />
+            android:title="@string/menu_users" />
     </group>
 
     <group
@@ -26,7 +26,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_settings"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Настройки" />
+            android:icon="@drawable/baseline_build_24"
+            android:title="@string/menu_settings" />
     </group>
 </menu>

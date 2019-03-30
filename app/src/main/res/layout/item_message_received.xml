@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingTop="8dp">
+    android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/text_message_name"
+        android:id="@+id/message_divider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="12dp"
+        android:gravity="center"
+        android:layout_gravity="center"/>
+
+    <TextView
+        android:id="@+id/message_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_below="@id/message_divider"
+        android:layout_marginTop="8dp"
         android:layout_marginLeft="8dp"
-        android:textColor="#573f41"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="4dp" />
+        android:layout_marginStart="8dp"
+        android:textColor="#573f41" />
 
     <TextView
-        android:id="@+id/text_message_body"
+        android:id="@+id/message_text"
         android:background="@drawable/rounded_rectangle_received"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,20 +34,22 @@
         android:padding="8dp"
         android:textColor="#573f41"
         android:textSize="16sp"
+        android:layout_below="@id/message_name"
         android:layout_marginTop="4dp"
-        android:textIsSelectable="true"
-        app:layout_constraintTop_toBottomOf="@+id/text_message_name"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginLeft="8dp" />
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:textIsSelectable="true" />
 
     <TextView
-        android:id="@+id/text_message_time"
+        android:id="@+id/message_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#573f41"
-        app:layout_constraintLeft_toRightOf="@+id/text_message_body"
+        android:layout_alignBottom="@id/message_text"
+        android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/text_message_body" />
+        android:layout_toEndOf="@+id/message_text"
+        android:layout_toRightOf="@+id/message_text"
+        android:textColor="#573f41"
+        android:textSize="12sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

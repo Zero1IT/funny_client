@@ -24,34 +24,33 @@ public class SocketAPI {
         }
     };
 
-    public static String[] chatNames = new String[]{"common", "gomel", "minsk",
+    public static String[] sChatNames = new String[]{"common", "gomel", "minsk",
             "mogilev", "brest", "vitebsk", "grodno"};
 
-    private static Socket mSocket;
+    private static Socket sSocket;
 
     private SocketAPI() {}
 
     public static Socket getSocket() {
-        if (mSocket == null) {
+        if (sSocket == null) {
             try {
-                mSocket = IO.socket(URL);
-                mSocket.connect();
+                sSocket = IO.socket(URL);
+                sSocket.connect();
             } catch (URISyntaxException e) {
                 Log.d(Session.TAG, e.getMessage());
             }
-        } else if (!mSocket.connected()) {
-            mSocket.connect();
+        } else if (!sSocket.connected()) {
+            sSocket.connect();
         }
-
-        return mSocket;
+        return sSocket;
     }
 
     public static void closeSocket() {
-        if (mSocket == null) {
+        if (sSocket == null) {
             return;
         }
-        mSocket.disconnect();
-        mSocket = null;
+        sSocket.disconnect();
+        sSocket = null;
     }
 
     public static boolean isOnline(Context context) {
@@ -60,4 +59,10 @@ public class SocketAPI {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
+    public static boolean isOnline() {
+        if (sSocket != null) {
+            return sSocket.connected();
+        }
+        return false;
+    }
 }

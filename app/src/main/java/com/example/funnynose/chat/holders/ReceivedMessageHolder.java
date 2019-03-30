@@ -6,21 +6,27 @@ import android.widget.TextView;
 import com.example.funnynose.R;
 import com.example.funnynose.chat.Message;
 
-public class ReceivedMessageHolder extends AbstractMessageHolder {
+public class ReceivedMessageHolder extends MessageHolder {
 
-    private TextView nameText;
+    private TextView mNameView;
 
     public ReceivedMessageHolder(View itemView) {
         super(itemView);
-        messageText = itemView.findViewById(R.id.text_message_body);
-        timeText = itemView.findViewById(R.id.text_message_time);
-        nameText = itemView.findViewById(R.id.text_message_name);
+        mNameView = itemView.findViewById(R.id.message_name);
     }
 
     @Override
     public void bind(Message msg) {
-        messageText.setText(msg.text);
-        timeText.setText(sHoursMinutes.format(msg.time));
-        nameText.setText(msg.nickname);
+        super.bind(msg);
+        mNameView.setText(msg.nickname);
+    }
+
+    public void hideName() {
+        mNameView.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setTotalRoundedRectangle() {
+        mTextView.setBackgroundResource(R.drawable.total_rounded_rectangle_received);
     }
 }
