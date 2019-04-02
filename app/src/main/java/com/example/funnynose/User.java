@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.example.funnynose.constants.Session;
-import com.example.funnynose.network.SocketAPI;
 import com.google.gson.Gson;
 
 import org.jetbrains.annotations.Contract;

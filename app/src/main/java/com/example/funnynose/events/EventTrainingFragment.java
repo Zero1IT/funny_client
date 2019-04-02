@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.view.View;
 
 import com.example.funnynose.R;
+import com.example.funnynose.events.Support.EventsHospitalData;
+import com.example.funnynose.events.Support.EventsTrainingData;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,9 +20,9 @@ import androidx.annotation.Nullable;
 public class EventTrainingFragment extends EventFragment {
 
     private static final String LAYOUT_NAME = "Тренинги";
-    private static final String SERVER_LISTENER = "training_event_listen";
+    private static final String SERVER_MORE_LOAD = "more_training_event";
 
-    private int mDataCountMax; // TODO: check in db later
+    private long mDataCountMax = -1;
 
     public static EventTrainingFragment newInstance() {
 
@@ -32,8 +34,14 @@ public class EventTrainingFragment extends EventFragment {
     }
 
     public EventTrainingFragment() {
-        super(R.layout.event_item_training, EventsData.getInstance().getEventsTraining());
-        mDataCountMax = 1000;
+        super(R.layout.event_item_training, EventsTrainingData.getInstance().getData());
+        initObservable(EventsTrainingData.getInstance());
+        EventsTrainingData.getInstance().getCountEvent(new EventsData.AsyncCountGetter() {
+            @Override
+            public void result(long count) {
+                mDataCountMax = count;
+            }
+        });
     }
 
     @Override
@@ -42,35 +50,12 @@ public class EventTrainingFragment extends EventFragment {
     }
 
     @Override
-    protected void loadMoreData() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<Event> list = new ArrayList<>();
-                for (int i = mEvents.size(); i < mEvents.size() + 50; i++) {
-                    Event e = new Event();
-                    e.setId(i);
-                    e.setIcon(Event.ICON_TRAINING);
-                    e.setTitle("Training-event test server load");
-                    e.setDate(new Date());
-                    e.setFinished(i % 2 == 0);
-                    list.add(e);
-                }
-
-                if (isLoadedNewEvent()) {
-                    mAdapter.addData(0, mNewAddedEvents);
-                    mLoadedNewEvent = false;
-                    mNewAddedEvents.clear();
-                }
-                mAdapter.addData(list);
-                mLoadingMore = false;
-                mAdapter.loadMoreComplete();
-            }
-        }, 3000);
+    protected int getTypeEvent() {
+        return EventsData.EVENT_TRAINING_TYPE;
     }
 
     @Override
-    protected int getDataCountMax() {
+    protected long getDataCountMax() {
         return mDataCountMax;
     }
 
@@ -80,7 +65,7 @@ public class EventTrainingFragment extends EventFragment {
     }
 
     @Override
-    public String getServerListenerName() {
-        return SERVER_LISTENER;
+    protected String getServerListenLoadMore() {
+        return SERVER_MORE_LOAD;
     }
 }

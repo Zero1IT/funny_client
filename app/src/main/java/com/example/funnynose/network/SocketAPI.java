@@ -17,7 +17,7 @@ public class SocketAPI {
 
     private final static String URL = "http://app.funnynose.by";
     //private final static String URL = "http://192.168.0.105:3000";
-    public static ArrayList<String> cities = new ArrayList<String>() {
+    public static ArrayList<String> sCities = new ArrayList<String>() {
         {
             add("Гомель"); add("Минск"); add("Могилёв");
             add("Брест"); add("Витебск"); add("Гродно");

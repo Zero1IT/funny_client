@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".events.CreateEventActivity"></activity>
+        <activity android:name=".events.CreateEventActivity" android:windowSoftInputMode="adjustResize">
+        </activity>
         <activity
             android:name=".SplashActivity"
             android:label="funnynose"

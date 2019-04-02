@@ -46,7 +46,7 @@ public class ThirdRegistrationFragment extends CommonRegistrationFragment {
         Spinner mChooseCitySpinner = view.findViewById(R.id.choose_city);
         
         if (mContext != null) {
-            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<> (
                     mContext, android.R.layout.simple_spinner_dropdown_item, SocketAPI.sCities);
             mChooseCitySpinner.setAdapter(spinnerArrayAdapter);
         }

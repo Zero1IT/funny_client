@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.funnynose.constants.Session;
 import com.example.funnynose.events.EventPagerFragment;
 import com.example.funnynose.chat.DoubleChatFragment;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.funnynose.network.SocketAPI;
 import com.example.funnynose.users.UserActivity;
 import com.example.funnynose.users.UserProfile;
 import com.example.funnynose.users.UsersFragment;
@@ -27,6 +30,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import io.socket.emitter.Emitter;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -73,6 +77,14 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().add(R.id.main_frame_layout, fragment).commit();
             navigationView.setCheckedItem(R.id.nav_events);
         }
+
+        //TODO: debug for me
+        SocketAPI.getSocket().on("fordebug", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Log.d(Session.TAG, args[0].toString());
+            }
+        });
     }
 
     @Override

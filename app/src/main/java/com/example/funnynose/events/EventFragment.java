@@ -12,12 +12,16 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.example.funnynose.R;
 import com.example.funnynose.adapters.ScrollEventsAdapter;
 import com.example.funnynose.constants.Session;
+import com.example.funnynose.events.Support.LoadMoreHolder;
 import com.example.funnynose.network.SocketAPI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -31,22 +35,19 @@ import io.socket.emitter.Emitter;
 
 public abstract class EventFragment extends Fragment implements Observer {
 
+    private static final String SERVER_LOAD_MORE = "load_more_data_event";
     private static final int DELAY = 1000;
     private int mTypeLayout;
     private RecyclerView mRecyclerView;
-    private boolean mErrorLoadData;
-    private long mCurrentCountItem;
+    private Observable mObservable;
     private FloatingActionButton mCreateEventButton;
-    boolean mLoadingMore;
-    boolean mLoadedNewEvent;
-    ScrollEventsAdapter mAdapter;
-    List<Event> mEvents;
-    List<Event> mNewAddedEvents;
+    private ScrollEventsAdapter mAdapter;
+    private List<Event> mEvents;
 
-    private EventFragment() {}
+    private EventFragment(int typeLayout) { mTypeLayout = typeLayout; }
 
     EventFragment(int typeLayout, List<Event> data) {
-        mTypeLayout = typeLayout;
+        this(typeLayout);
         mEvents = data;
     }
 
@@ -60,56 +61,54 @@ public abstract class EventFragment extends Fragment implements Observer {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mNewAddedEvents = new ArrayList<>();
         mCreateEventButton = view.findViewById(R.id.create_event);
         mCreateEventButton.setOnClickListener(createEventClick);
-        mLoadingMore = false;
-        mLoadedNewEvent = false;
-        mErrorLoadData = false; // TODO: check in db later
         initAdapter(view);
-        initServerListener();
-        EventsData.getInstance().addObserver(this);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode - 1 == Activity.RESULT_OK) {
-            if (requestCode == CreateEventActivity.IDENTITY) {
-                Event e = new Event();
-                e.setIcon(getNameLayout().equals("Другое") ? Event.ICON_ANOTHER : (getNameLayout().equals("Госпиталь") ? Event.ICON_HOSPITAL : Event.ICON_TRAINING));
-                e.setFinished(true);
-                e.setDate(new Date());
-                e.setTitle("From activity");
-                e.setId(-1);
-                e.setDurationEvent(228);
-                Log.d(Session.TAG, mAdapter.getItemCount() + "");
-                Log.d(Session.TAG, mEvents.size() + "");
-                mAdapter.addData(0, e);
-                Log.d(Session.TAG, mAdapter.getItemCount() + "");
-                Log.d(Session.TAG, mEvents.size() + "");
+        if (resultCode == Activity.RESULT_OK && requestCode == CreateEventActivity.IDENTITY) {
+            if (data != null) {
+                Event event = (Event) data.getSerializableExtra(CreateEventActivity.NAME_KEY);
+                mAdapter.addData(0, event);
             }
         }
     }
 
     @Override
-    public void update(Observable o, Object arg) {
-        if (o != null) {
-            if (getActivity() != null) {
+    public void update(Observable o, final Object arg) {
+        if (arg instanceof Event) {
+            if (getActivity() != null)
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(Session.TAG, "Current = " + mCurrentCountItem);
-                        Log.d(Session.TAG, "size = " + mEvents.size());
-                        if (mCurrentCountItem < mEvents.size()) {
-                            mAdapter.notifyItemInserted(0);
-                            mRecyclerView.scrollToPosition(0);
-                            mCurrentCountItem = mEvents.size();
-                        }
+                        mAdapter.addData(0, (Event) arg);
                     }
                 });
-            }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mObservable.deleteObserver(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mObservable.addObserver(this);
+        if (getContext() != null && !SocketAPI.isOnline(getContext())) {
+            mCreateEventButton.setVisibility(View.GONE);
+        } else {
+            mCreateEventButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    void initObservable(Observable observable) {
+        mObservable = observable;
+        mObservable.addObserver(this);
     }
 
     private void initAdapter(@NonNull View view) {
@@ -118,6 +117,7 @@ public abstract class EventFragment extends Fragment implements Observer {
         mAdapter.openLoadAnimation(BaseQuickAdapter.ALPHAIN);
         mAdapter.setOnLoadMoreListener(loadMore, mRecyclerView);
         mAdapter.setOnItemClickListener(itemClickListen);
+        mAdapter.setLoadMoreView(new LoadMoreHolder());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerView.setAdapter(mAdapter);
     }
@@ -151,11 +151,8 @@ public abstract class EventFragment extends Fragment implements Observer {
                     if (mEvents.size() >= getDataCountMax()) {
                         mAdapter.loadMoreEnd();
                     } else {
-                        if (!mErrorLoadData) {
-                            Log.d(Session.TAG, "current = " + mEvents.size() + " : max = " + getDataCountMax());
-                            mLoadingMore = true;
+                        if (SocketAPI.isOnline()) {
                             loadMoreData();
-                            mCurrentCountItem = mEvents.size(); // TODO: даун, это ассинхронный метод, что ты творишь
                         } else {
                             if (getView() != null)
                                 Snackbar.make(getView(), "Ошибка загрузки", Snackbar.LENGTH_SHORT).show();
@@ -167,61 +164,37 @@ public abstract class EventFragment extends Fragment implements Observer {
         }
     };
 
-    private void initServerListener() {
-        SocketAPI.getSocket().emit(getServerListenerName(), "last loaded id event")
-                .on(getServerListenerName(), new Emitter.Listener() {
-                    @Override
-                    public void call(Object... args) {
-
-                    }
-                });
-
-        // TODO: for debug, release client listener
-        new Thread(new Runnable() {
+    private void loadMoreData() {
+        mAdapter.loadMoreComplete();
+        JSONObject args = new JSONObject();
+        try {
+            args.put("id", mEvents.get(mEvents.size() - 1).getId());
+            args.put("type", getTypeEvent());
+        } catch (JSONException e) {
+            Log.e(Session.TAG, e.getMessage());
+        }
+        SocketAPI.getSocket().emit(SERVER_LOAD_MORE, args)
+                .once(getServerListenLoadMore(), new Emitter.Listener() {
             @Override
-            public void run() {
-                int pause = getNameLayout().equals("Другое") ? 3000 : (getNameLayout().equals("Госпиталь") ? 6000 : 9000);
-                int count = 0;
-                while (true) {
-                    final Event event = new Event();
-                    event.setTitle("Async load from server - test " + count);
-                    event.setDate(new Date());
-                    event.setFinished(true);
-                    event.setIcon(getNameLayout().equals("Другое") ? Event.ICON_ANOTHER : (getNameLayout().equals("Госпиталь") ? Event.ICON_HOSPITAL : Event.ICON_TRAINING));
-                    if (getActivity() != null) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (mLoadingMore) {
-                                    Log.d(Session.TAG, "more loading");
-                                    mLoadedNewEvent = true;
-                                    mNewAddedEvents.add(event);
-                                } else {
-                                    mAdapter.addData(0, event);
-                                    Log.d(Session.TAG, "no more loading");
-                                }
-                            }
-                        });
+            public void call(Object... args) {
+                JSONArray eventArray = (JSONArray) args[0];
+                List<Event> moreEvents = new ArrayList<>();
+                try {
+                    for (int i = 0; i < eventArray.length(); i++) {
+                        moreEvents.add(new Event((JSONObject) eventArray.get(i)));
                     }
-                    try {
-                        Thread.sleep(pause);
-                    } catch (InterruptedException e) {
-                        Log.d(Session.TAG, e.getMessage());
-                    }
-                    if (count == 0) pause = 9000;
-                    count++;
+                } catch (JSONException e) {
+                    Log.e(Session.TAG, e.getMessage());
+                }
+                synchronized (mAdapter.getData()) {
+                    mAdapter.addData(moreEvents);
                 }
             }
-        }).start();
+        });
     }
 
-    //TODO: refactoring and delete this
-    protected boolean isLoadedNewEvent() {
-        return mLoadedNewEvent;
-    }
-
-    protected abstract void loadMoreData();
-    protected abstract int getDataCountMax();
+    protected abstract int getTypeEvent();
+    protected abstract long getDataCountMax();
+    protected abstract String getServerListenLoadMore();
     public abstract String getNameLayout();
-    public abstract String getServerListenerName();
 }

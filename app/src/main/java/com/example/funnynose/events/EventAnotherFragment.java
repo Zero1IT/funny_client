@@ -1,10 +1,13 @@
 package com.example.funnynose.events;
 
+import android.animation.Animator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 
 import com.example.funnynose.R;
+import com.example.funnynose.events.Support.EventsAnotherData;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -19,9 +22,9 @@ import androidx.annotation.Nullable;
 public class EventAnotherFragment extends EventFragment {
 
     private static final String LAYOUT_NAME = "Другое";
-    private static final String SERVER_LISTENER = "another_event_listen";
+    private static final String SERVER_MORE_LOAD = "more_another_event";
 
-    private int mDataCountMax; // TODO: check in db later
+    private long mDataCountMax = -1;
 
     public static EventAnotherFragment newInstance() {
 
@@ -33,9 +36,17 @@ public class EventAnotherFragment extends EventFragment {
     }
 
     public EventAnotherFragment() {
-        super(R.layout.event_item_another, EventsData.getInstance().getEventsAnother());
-        mDataCountMax = 1000;
+        super(R.layout.event_item_another, EventsAnotherData.getInstance().getData());
+        initObservable(EventsAnotherData.getInstance());
+        EventsAnotherData.getInstance().getCountEvent(new EventsData.AsyncCountGetter() {
+            @Override
+            public void result(long count) {
+                mDataCountMax = count;
+            }
+        });
     }
+
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -43,35 +54,12 @@ public class EventAnotherFragment extends EventFragment {
     }
 
     @Override
-    protected void loadMoreData() {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<Event> list = new ArrayList<>();
-                for (int i = mEvents.size(); i < mEvents.size() + 50; i++) {
-                    Event e = new Event();
-                    e.setId(i);
-                    e.setIcon(Event.ICON_ANOTHER);
-                    e.setTitle("Another-event test server load");
-                    e.setDate(new Date());
-                    e.setFinished(i % 2 == 0);
-                    list.add(e);
-                }
-
-                if (isLoadedNewEvent()) {
-                    mAdapter.addData(0, mNewAddedEvents);
-                    mLoadedNewEvent = false;
-                    mNewAddedEvents.clear();
-                }
-                mAdapter.addData(list);
-                mLoadingMore = false;
-                mAdapter.loadMoreComplete();
-            }
-        }, 3000);
+    protected int getTypeEvent() {
+        return EventsData.EVENT_ANOTHER_TYPE;
     }
 
     @Override
-    protected int getDataCountMax() {
+    protected long getDataCountMax() {
         return mDataCountMax;
     }
 
@@ -81,7 +69,7 @@ public class EventAnotherFragment extends EventFragment {
     }
 
     @Override
-    public String getServerListenerName() {
-        return SERVER_LISTENER;
+    protected String getServerListenLoadMore() {
+        return SERVER_MORE_LOAD;
     }
 }

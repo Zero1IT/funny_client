@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.view.View;
 
 import com.example.funnynose.R;
+import com.example.funnynose.events.Support.EventsHospitalData;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -18,9 +19,9 @@ import androidx.annotation.Nullable;
 public class EventHospitalFragment extends EventFragment {
 
     private static final String LAYOUT_NAME = "Госпиталь";
-    private static final String SERVER_LISTENER = "hospital_event_listen";
+    private static final String SERVER_MORE_LOAD = "more_hospital_event";
 
-    private int mDataCountMax; // TODO: check in db later
+    private long mDataCountMax = -1;
 
     public static EventHospitalFragment newInstance() {
 
@@ -32,8 +33,14 @@ public class EventHospitalFragment extends EventFragment {
     }
 
     public EventHospitalFragment() {
-        super(R.layout.event_item_hospital, EventsData.getInstance().getEventsHospital());
-        mDataCountMax = 1000;
+        super(R.layout.event_item_hospital, EventsHospitalData.getInstance().getData());
+        initObservable(EventsHospitalData.getInstance());
+        EventsHospitalData.getInstance().getCountEvent(new EventsData.AsyncCountGetter() {
+            @Override
+            public void result(long count) {
+                mDataCountMax = count;
+            }
+        });
     }
 
     @Override
@@ -42,35 +49,12 @@ public class EventHospitalFragment extends EventFragment {
     }
 
     @Override
-    protected void loadMoreData() {
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                List<Event> list = new ArrayList<>();
-                for (int i = mEvents.size(); i < mEvents.size() + 50; i++) {
-                    Event e = new Event();
-                    e.setId(i);
-                    e.setIcon(Event.ICON_HOSPITAL);
-                    e.setTitle("Hospital-event test server load");
-                    e.setDate(new Date());
-                    e.setFinished(i % 2 == 0);
-                    list.add(e);
-                }
-                if (isLoadedNewEvent()) {
-                    mAdapter.addData(0, mNewAddedEvents);
-                    mLoadedNewEvent = false;
-                    mNewAddedEvents.clear();
-                }
-                mAdapter.addData(list);
-                mLoadingMore = false;
-                mAdapter.loadMoreComplete();
-            }
-        }, 3000);
+    protected int getTypeEvent() {
+        return EventsData.EVENT_HOSPITAL_TYPE;
     }
 
     @Override
-    protected int getDataCountMax() {
+    protected long getDataCountMax() {
         return mDataCountMax;
     }
 
@@ -80,7 +64,7 @@ public class EventHospitalFragment extends EventFragment {
     }
 
     @Override
-    public String getServerListenerName() {
-        return SERVER_LISTENER;
+    protected String getServerListenLoadMore() {
+        return SERVER_MORE_LOAD;
     }
 }

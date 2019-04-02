@@ -1,80 +1,152 @@
 package com.example.funnynose.events;
 
+import android.util.Log;
+
+import com.example.funnynose.constants.Session;
 import com.example.funnynose.network.SocketAPI;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Observable;
-import java.util.UUID;
+import java.util.Observer;
 
 import io.socket.emitter.Emitter;
 
-class EventsData extends Observable {
-    private static final EventsData ourInstance = new EventsData();
+public abstract class EventsData extends Observable {
 
-    private static final String FIRST_LOAD_EVENTS = "events_check";
+    public final static int EVENT_ANOTHER_TYPE = 0;
+    public final static int EVENT_HOSPITAL_TYPE = 1;
+    public final static int EVENT_TRAINING_TYPE = 2;
 
-    private final List<Event> mEventsAnother = new ArrayList<>();
-    private final List<Event> mEventsHospital = new ArrayList<>();
-    private final List<Event> mEventsTraining = new ArrayList<>();
+    private final static String CHECK_SERVER_EVENT = "check_event";
+    private final static String CHECK_EVENT_COUNT = "check_event_count";
 
-    static EventsData getInstance() {
-        return ourInstance;
+    private final List<Object> mNotSendEvents = new ArrayList<>();
+    private List<Event> mEvents;
+    private AsyncCountGetter mFunc;
+
+    public EventsData(List<Event> events, String listenCount) {
+        mEvents = events;
+        initEventCount(listenCount);
     }
 
-    private EventsData() {
-        FORDEBUG();
+    public List<Event> getData() {
+        return mEvents;
     }
-    private void onceEventsCheck() {
-        SocketAPI.getSocket().emit(FIRST_LOAD_EVENTS, "User.getPhone/getName/getId")
-            .once(FIRST_LOAD_EVENTS, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    // TODO: release later
+
+    protected void loadServerEvents(String checker, final String listener) {
+        long lastId = mEvents.size();
+        JSONObject args = new JSONObject();
+        try {
+            args.put("id", lastId);
+            args.put("type", eventType());
+        } catch (JSONException e) {
+            Log.e(Session.TAG, "id put exception");
+        }
+        SocketAPI.getSocket().emit(CHECK_SERVER_EVENT, args).on(checker, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                if (args != null) {
+                    JSONArray eventArray = (JSONArray) args[0];
+                    try {
+                        for (int i = 0; i < eventArray.length(); i++) {
+                            unPackEvent((JSONObject) eventArray.get(i));
+                        }
+                    } catch (JSONException e) {
+                        Log.d(Session.TAG, "first data load if fail");
+                    }
                 }
-            });
+                listenEventsServer(listener);
+            }
+        });
     }
 
-    List<Event> getEventsAnother() {
-        return mEventsAnother;
+    private void listenEventsServer(String name) {
+        SocketAPI.getSocket().on(name, new Emitter.Listener() {
+            @Override
+            public void call(Object ... args) {
+                if (countObservers() == 0) {
+                    mNotSendEvents.add(args[0]);
+                } else {
+                    setChanged();
+                    unPackEvent((JSONObject) args[0]);
+                }
+            }
+        });
     }
 
-    List<Event> getEventsTraining() {
-        return mEventsTraining;
-    }
-
-    List<Event> getEventsHospital() {
-        return mEventsHospital;
-    }
-
-    private void FORDEBUG() {
-        for (int i = 0; i < 150; i++) {
-            Event e = new Event();
-            e.setId(i);
-            e.setDate(new Date());
-            e.setTitle(UUID.randomUUID().toString());
-            e.setFinished(i % 2 == 0);
-            e.setIcon(Event.ICON_ANOTHER);
-            mEventsAnother.add(e);
+    private void initEventCount(String listen) {
+        JSONObject args = new JSONObject();
+        try {
+            args.put("type", eventType());
+        } catch (JSONException e) {
+            Log.e(Session.TAG, e.getMessage());
         }
-        for (int i = 0; i < 150; i++) {
-            Event e = new Event();
-            e.setId(i);
-            e.setDate(new Date());
-            e.setTitle(UUID.randomUUID().toString());
-            e.setFinished(i % 2 == 0);
-            e.setIcon(Event.ICON_HOSPITAL);
-            mEventsHospital.add(e);
+        SocketAPI.getSocket().emit(CHECK_EVENT_COUNT, args)
+                .once(listen, new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject obj = (JSONObject) args[0];
+                try {
+                    long countEvent = obj.getInt("count");
+                    mFunc.result(countEvent);
+                    Log.d(Session.TAG, countEvent + "");
+                } catch (JSONException e) {
+                    Log.e(Session.TAG, e.getMessage());
+                }
+            }
+        });
+    }
+
+    private synchronized void unPackEvent(JSONObject obj) {
+        Log.d(Session.TAG, "FROM SERVER = " + obj.toString());
+        Event event;
+        try {
+            event = new Event(obj);
+            event.setIcon(eventIcon());
+        } catch (JSONException e) {
+            Log.e(Session.TAG, e.getMessage());
+            throw new ExceptionInInitializerError("Fatal error, fix it");
         }
-        for (int i = 0; i < 150; i++) {
-            Event e = new Event();
-            e.setId(i);
-            e.setDate(new Date());
-            e.setTitle(UUID.randomUUID().toString());
-            e.setFinished(i % 2 == 0);
-            e.setIcon(Event.ICON_TRAINING);
-            mEventsTraining.add(e);
+
+        synchronized (mNotSendEvents) {
+            if (countObservers() > 0) {
+                setChanged();
+                notifyObservers(event);
+            } else {
+                mNotSendEvents.add(event);
+            }
         }
+
+    }
+
+    @Override
+    public synchronized void addObserver(Observer o) {
+        if (countObservers() > 0) return;
+        super.addObserver(o);
+        if (mNotSendEvents.size() > 0) {
+            synchronized (mNotSendEvents) {
+                for (Object i : mNotSendEvents) {
+                    setChanged();
+                    notifyObservers(i);
+                }
+                mNotSendEvents.clear();
+            }
+        }
+    }
+
+    void getCountEvent(AsyncCountGetter func) {
+        mFunc = func;
+    }
+
+    protected abstract int eventIcon();
+    protected abstract int eventType();
+
+    interface AsyncCountGetter {
+        void result(long count);
     }
 }

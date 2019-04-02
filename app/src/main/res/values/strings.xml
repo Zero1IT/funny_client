@@ -38,4 +38,14 @@
 
     <string name="users_last_participation">Последнее участие:\t</string>
     <string name="users_avatarka">Аватарка пользователя</string>
+
+    <string name="select_event_date_time">Выбрать дату и время</string>
+    <string name="select_date_dialog_name">Выбрать дату</string>
+    <string name="select_time_dialog_name">Выбрать время</string>
+    <string name="save_changed">Сохранить изменения</string>
+    <string name="event_title">Заголовок мероприятия</string>
+    <string name="event_describe">Описание мероприятия</string>
+    <string name="event_duration">Приблизительная продолжительность: </string>
+    <string name="load_more">Загрузка</string>
+    <string name="load_fail">Ошибка загрузки</string>
 </resources>

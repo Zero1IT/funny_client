@@ -8,34 +8,36 @@ import com.example.funnynose.constants.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-public final class Event {
+public final class Event implements Serializable {
 
-    static final int ICON_ANOTHER = R.mipmap.another_finish;
-    static final int ICON_HOSPITAL = R.mipmap.hospital_finish;
-    static final int ICON_TRAINING = R.mipmap.traning_finish;
+    public static final int ICON_ANOTHER = R.mipmap.another_finish;
+    public static final int ICON_HOSPITAL = R.mipmap.hospital_finish;
+    public static final int ICON_TRAINING = R.mipmap.traning_finish;
 
     private static final Locale sLocale = new Locale("ru", "RU");
     private static final SimpleDateFormat sDate = new SimpleDateFormat("dd-MM-yyyy (kk:mm)", sLocale);
 
     private long mId;
+    private String mTitle;
+    private Date mDate;
+    private String mDescribe;
+    private int mDurationEvent;
+    private boolean mFinished;
     private int mIcon;
     private List<String> mUsersName;
-    private Date mDate;
-    private int mDurationEvent;
-    private String mTitle;
-    private boolean mFinished;
 
-    Event() {
+    public Event() {
 
     }
 
-    Event(JSONObject data) throws JSONException {
+    public Event(JSONObject data) throws JSONException {
         eventFromJson(data);
     }
 
@@ -51,16 +53,21 @@ public final class Event {
                     setTitle(data.getString(key));
                     break;
                 case "date":
-                    setDate(java.sql.Date.valueOf(data.getString(key)));
+                    Date date = new Date();
+                    date.setTime(data.getLong(key));
+                    setDate(date);
                     break;
-                case "finish":
-                    setFinished(data.getBoolean(key));
+                case "finished":
+                    setFinished(data.getString(key).equals("1"));
                     break;
                 case "users":
                     usersFromJson(data.getJSONObject(key));
                     break;
                 case "duration":
                     setDurationEvent(data.getInt(key));
+                    break;
+                case "describeEvent":
+                    setDescribe(data.getString(key));
                     break;
                 default:
                     Log.e(Session.TAG, "event error load");
@@ -133,5 +140,13 @@ public final class Event {
 
     public void setDurationEvent(int durationEvent) {
         mDurationEvent = durationEvent;
+    }
+
+    public String getDescribe() {
+        return mDescribe;
+    }
+
+    public void setDescribe(String describe) {
+        mDescribe = describe;
     }
 }

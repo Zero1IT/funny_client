@@ -23,6 +23,7 @@ public class ScrollEventsAdapter extends BaseQuickAdapter<Event, BaseViewHolder>
         helper.setText(R.id.event_title, item.getTitle());
         if (item.isFinished()) {
             helper.setImageResource(R.id.event_finish, item.getIcon());
+            helper.itemView.findViewById(R.id.event_finish).setVisibility(View.VISIBLE);
         } else {
             helper.itemView.findViewById(R.id.event_finish).setVisibility(View.INVISIBLE);
         }
